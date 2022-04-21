@@ -21,6 +21,8 @@ set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 # Wskazujemy pliki źródłowe.
 set(SOURCE_FILES
+    src/trie.h
+    src/trie.c
     src/phone_forward.h
     src/phone_forward.c
     src/phone_forward_example.c)
