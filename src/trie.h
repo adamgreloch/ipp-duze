@@ -12,22 +12,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define NUM 10 // Rozmiar "alfabetu" {0,1,...,9}
+#define ALLNUM 10 // Rozmiar "alfabetu" {0,1,...,9}
 
 struct TrieNode;
 typedef struct TrieNode TrieNode;
 
 struct TrieNode {
     TrieNode *parent;
-    TrieNode *children[NUM];
+    TrieNode *children[ALLNUM];
     bool isTerminal;
     char *value;
-    size_t deletedChildren;
 };
 
 // TODO dokumentacja
 
-TrieNode *trieNodeNew(TrieNode *father);
+TrieNode *trieNodeNew(TrieNode *parent);
 
 void trieDelete(TrieNode *node);
 
@@ -35,9 +34,7 @@ bool trieNodeSet(TrieNode *node, const char *value);
 
 const char *trieNodeGet(TrieNode *node);
 
-size_t trieNodeDepth(TrieNode *node);
-
-TrieNode *trieFind(TrieNode *v, const char *prefix);
+TrieNode *trieFind(TrieNode *v, const char *prefix, size_t *length);
 
 TrieNode *trieInsert(TrieNode **rootPtr, const char *str);
 

@@ -32,11 +32,11 @@ static bool isValidNumber(char const *str) {
 }
 
 PhoneForward *phfwdNew(void) {
-    PhoneForward *phfwd = malloc(sizeof(PhoneForward));
-    if (!phfwd) return NULL;
-    phfwd->root = trieNodeNew(NULL);
-    if (!phfwd->root) return NULL;
-    return phfwd;
+    PhoneForward *pf = malloc(sizeof(PhoneForward));
+    if (!pf) return NULL;
+    pf->root = trieNodeNew(NULL);
+    if (!pf->root) return NULL;
+    return pf;
 }
 
 void phfwdDelete(PhoneForward *pf) {
@@ -64,40 +64,32 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     numbers->str = malloc(sizeof(char *) * INIT_SIZE);
     if (!numbers->str) return NULL;
 
-    TrieNode *found = trieFind(pf->root, num);
+    size_t charsToSubstitute;
 
-    if (!found) { // TODO zwalczyć redundancję
-        free(numbers->str);
-        free(numbers);
-        return NULL;
+    TrieNode *found = trieFind(pf->root, num, &charsToSubstitute);
+    if (!found) {
+        numbers->str[0] = (char *) num;
+        return numbers;
     }
 
-    size_t substitutionLength = trieNodeDepth(found) - 1;
     const char *fwdPrefix = trieNodeGet(found);
-    if (!fwdPrefix) {
-        // TODO zrobić return, gdy nie ma przekierowania,
-        //  czyli uporządkować tę funkcję.
-    }
-    size_t newNumLength = strlen(num) - substitutionLength + strlen(fwdPrefix) + 1;
+
+    size_t newNumLength = strlen(num) + strlen(fwdPrefix) - charsToSubstitute;
 
     char *new = malloc(sizeof(char) * (newNumLength + 1));
     if (!new) {
-        free(numbers->str);
-        free(numbers);
+        phnumDelete(numbers);
         return NULL;
     }
 
-    for (size_t i = 0; i < newNumLength; i++) {
+    for (size_t i = 0; i < newNumLength; i++)
         if (i < strlen(fwdPrefix))
             new[i] = fwdPrefix[i];
         else
-            new[i] = num[i + substitutionLength - 1];
-    }
+            new[i] = num[i + charsToSubstitute - 1];
 
-    numbers->str[0] = malloc(sizeof(char) * (strlen(new) + 1));
-    numbers->str[0] = strcpy(numbers->str[0], new);
+    numbers->str[0] = new;
 
-    free(new);
     return numbers;
 }
 
