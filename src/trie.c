@@ -15,8 +15,7 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     if (!node) return NULL;
 
     node->parent = parent;
-    for (int i = 0; i < ALLNUM; i++)
-        node->children[i] = NULL;
+    node->children = calloc(ALLNUM, sizeof(TrieNode*));
     node->isTerminal = true;
     node->value = NULL;
 
@@ -24,13 +23,15 @@ TrieNode *trieNodeNew(TrieNode *parent) {
 }
 
 void trieDelete(TrieNode *node) {
-    if (node) {
-        for (int i = 0; i < ALLNUM; i++)
-            trieDelete(node->children[i]);
-        free(node->value);
-        free(node);
-        node = NULL;
-    }
+    if (!node) return;
+
+    for (int i = 0; i < ALLNUM; i++)
+        trieDelete(node->children[i]);
+
+    free(node->children);
+    free(node->value);
+    free(node);
+    node = NULL;
 }
 
 bool trieNodeSet(TrieNode *node, const char *value) {
@@ -87,13 +88,13 @@ TrieNode *trieInsert(TrieNode **rootPtr, const char *str) {
 }
 
 void trieRemoveStr(TrieNode **rootPtr, const char *str) {
-    if (!(*rootPtr)) {
+    if (*rootPtr) {
         TrieNode *v = *rootPtr;
         int j;
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
             j = str[i] - '0';
-            if (v->isTerminal) mayExist = false;
+            if (!v) mayExist = false;
             else
                 v = v->children[j];
         }

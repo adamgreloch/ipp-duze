@@ -19,7 +19,7 @@ typedef struct TrieNode TrieNode;
 
 struct TrieNode {
     TrieNode *parent;
-    TrieNode *children[ALLNUM];
+    TrieNode **children;
     bool isTerminal;
     char *value;
 };
