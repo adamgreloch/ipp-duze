@@ -25,13 +25,14 @@ TrieNode *trieNodeNew(TrieNode *parent) {
 void trieDelete(TrieNode *node) {
     if (!node) return;
 
-    for (int i = 0; i < ALLNUM; i++)
+    for (int i = 0; i < ALLNUM; i++) {
         trieDelete(node->children[i]);
+        node->children[i] = NULL;
+    }
 
     free(node->children);
     free(node->value);
     free(node);
-    node = NULL;
 }
 
 bool trieNodeSet(TrieNode *node, const char *value) {
@@ -98,7 +99,9 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
             else
                 v = v->children[j];
         }
-        if (mayExist)
+        if (mayExist) {
             trieDelete(v);
+            v = NULL;
+        }
     }
 }
