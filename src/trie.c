@@ -15,7 +15,7 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     if (!node) return NULL;
 
     node->parent = parent;
-    node->children = calloc(ALLNUM, sizeof(TrieNode*));
+    node->children = calloc(ALLNUM, sizeof(TrieNode *));
     node->isTerminal = true;
     node->value = NULL;
 
@@ -42,7 +42,7 @@ bool trieNodeSet(TrieNode *node, const char *value) {
     if (!node->value) return false;
 
     strcpy(node->value, value); // TODO sprawdzić czy tak jest poprawnie
-    return node->value;
+    return true;
 }
 
 const char *trieNodeGet(TrieNode *node) {
@@ -50,13 +50,13 @@ const char *trieNodeGet(TrieNode *node) {
     return node->value;
 }
 
-TrieNode *trieFind(TrieNode *v, const char *prefix, size_t *length) {
+TrieNode *trieFind(TrieNode *v, const char *str, size_t *length) {
     if (!v) return NULL;
     int j;
     *length = 0;
     bool leaf = false;
-    for (size_t i = 0; !leaf && prefix[i] != '\0'; i++) {
-        j = prefix[i] - '0';
+    for (size_t i = 0; !leaf && str[i] != '\0'; i++) {
+        j = str[i] - '0';
         if (!v->children[j]) leaf = true;
         else {
             v = v->children[j];
@@ -70,7 +70,7 @@ TrieNode *trieFind(TrieNode *v, const char *prefix, size_t *length) {
     return v;
 }
 
-TrieNode *trieInsert(TrieNode **rootPtr, const char *str) {
+TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
     if (!(*rootPtr))
         *rootPtr = trieNodeNew(NULL);
     int j;

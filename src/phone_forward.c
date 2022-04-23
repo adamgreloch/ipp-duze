@@ -48,7 +48,7 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (strcmp(num1, num2) == 0) return false;
     if (!isValidNumber(num1) || !isValidNumber(num2)) return false;
 
-    TrieNode *v = trieInsert(&(pf->root), num1);
+    TrieNode *v = trieInsertStr(&(pf->root), num1);
 
     if (!v) return false;
     return trieNodeSet(v, num2);
