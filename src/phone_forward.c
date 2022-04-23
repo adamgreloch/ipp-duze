@@ -82,11 +82,17 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
         return NULL;
     }
 
-    for (size_t i = 0; i < newNumLength; i++)
-        if (i < strlen(fwdPrefix))
+    size_t i = 0, j = 0;
+
+    while (i + j < newNumLength)
+        if (i < strlen(fwdPrefix)) {
             new[i] = fwdPrefix[i];
-        else
-            new[i] = num[i + charsToSubstitute - 1];
+            i++;
+        }
+        else {
+            new[strlen(fwdPrefix) + j] = num[j + charsToSubstitute];
+            j++;
+        }
 
     numbers->str[0] = new;
 

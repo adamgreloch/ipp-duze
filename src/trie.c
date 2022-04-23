@@ -95,11 +95,12 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
             j = str[i] - '0';
-            if (!v) mayExist = false;
+            if (!v || !v->children[j]) mayExist = false;
             else
                 v = v->children[j];
         }
         if (mayExist) {
+            v->parent->children[j] = NULL;
             trieDelete(v);
             v = NULL;
         }
