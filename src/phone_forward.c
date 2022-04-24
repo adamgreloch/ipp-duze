@@ -35,6 +35,14 @@ struct PhoneNumbers {
                      w której przechowywane są numery telefonów. */
 };
 
+/**
+ * @brief Sprawdza, czy @p str jest numerem telefonu.
+ * Sprawdza, czy ciąg znaków @p str reprezentuje numer telefonu tzn.
+ * czy jest ciągiem złożonym wyłącznie z cyfr \f$0,1,...,9\f$.
+ * @param[in] str - sprawdzany ciąg znaków.
+ * @return Wartość @p TRUE, jeśli @p str jest prawidłowy lub @p FALSE w
+ *         przeciwnym wypadku.
+ */
 static bool isValidNumber(char const *str) {
     size_t i = 0;
     while (str[i] != '\0') {
@@ -72,10 +80,20 @@ void phfwdRemove(PhoneForward *pf, char const *num) {
         trieRemoveStr(&(pf->root), num);
 }
 
-PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
+static PhoneNumbers *pnumNew() {
     PhoneNumbers *numbers = malloc(sizeof(PhoneNumbers));
-    numbers->str = malloc(sizeof(char *) * INIT_SIZE);
+    numbers->str = calloc(INIT_SIZE, sizeof(char *));
     if (!numbers->str) return NULL;
+    numbers->amount = 0;
+
+    return numbers;
+}
+
+PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
+    PhoneNumbers *numbers = pnumNew();
+    if (!numbers) return NULL;
+
+    if (!isValidNumber(num)) return numbers;
 
     size_t charsToSubstitute;
 
@@ -89,7 +107,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
     size_t newNumLength = strlen(num) + strlen(fwdPrefix) - charsToSubstitute;
 
-    char *new = malloc(sizeof(char) * (newNumLength + 1));
+    char *new = calloc((newNumLength + 1), sizeof(char));
     if (!new) {
         phnumDelete(numbers);
         return NULL;
@@ -108,7 +126,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
         }
 
     numbers->str[0] = new;
-    numbers->amount = 1;
+    numbers->amount++;
 
     return numbers;
 }
@@ -118,12 +136,11 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
 }
 
 void phnumDelete(PhoneNumbers *pnum) {
-    if (!pnum) {
-        for (size_t i = 0; i < pnum->amount; i++)
-            free(pnum->str[i]);
-        free(pnum->str);
-        free(pnum);
-    }
+    if (!pnum) return;
+    for (size_t i = 0; i < pnum->amount; i++)
+        free(pnum->str[i]);
+    free(pnum->str);
+    free(pnum);
 }
 
 char const *phnumGet(PhoneNumbers const *pnum, size_t idx) {

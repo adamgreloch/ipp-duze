@@ -168,4 +168,7 @@ int main() {
     phfwdRemove(pf, "0210");
     pnum = phfwdGet(pf, "002");
     assert(strcmp(phnumGet(pnum, 0), "221212") == 0);
+
+    phnumDelete(pnum);
+    phfwdDelete(pf);
 }

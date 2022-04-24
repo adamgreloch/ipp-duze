@@ -13,18 +13,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define ALLNUM 10 // Rozmiar alfabetu w drzewie. {0,1,...,9}
+#define ALLNUM 10 /**< Rozmiar alfabetu w drzewie,
+                       czyli moc zbioru \f$\{0,1,...,9\}\f$. */
 
 /**
  * Struktura przechowująca węzeł tworzący drzewo trie.
  */
 struct TrieNode {
-    struct TrieNode *parent;     /**< Wskaźnik na rodzica węzła. */
-    struct TrieNode **children;  /**< Tablica wskaźników na dzieci węzła. */
-    bool isTerminal;      /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
-                             jest liściem, FALSE w przeciwnym wypadku. */
+    struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
+    struct TrieNode **children; /**< Tablica wskaźników na dzieci węzła. */
+    bool isTerminal; /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
+                          jest liściem, FALSE w przeciwnym wypadku. */
     char *value; /**< Wartość węzła. Jeśli nie jest pusta (ma wartość inną niż
-                     NULL), to jest poprawnym ciągiem cyfr. */
+                      NULL), to jest poprawnym ciągiem cyfr. */
 };
 typedef struct TrieNode TrieNode;
 
@@ -69,7 +70,7 @@ const char *trieNodeGet(TrieNode *node);
  * @param[in] str - ciąg znaków, dla którego szukany jest najdłuższy prefiks.
  * @param[in,out] length - wskaźnik na zmienną, w której zostanie zapisana
  * długość znalezionego prefiksu.
- * @return Wskaźnik na węzeł kończący najdłuższy prefiks lub NULL, gdy @v ma
+ * @return Wskaźnik na węzeł kończący najdłuższy prefiks lub NULL, gdy @p v ma
  * wartość NULL, lub gdy szukany prefiks nie istnieje.
  */
 TrieNode *trieFind(TrieNode *v, const char *str, size_t *length);
