@@ -16,23 +16,22 @@
 #define ALLNUM 10 // Rozmiar alfabetu w drzewie. {0,1,...,9}
 
 /**
- * To jest struktura przechowująca węzeł tworzący drzewo trie.
+ * Struktura przechowująca węzeł tworzący drzewo trie.
  */
-struct TrieNode;
+struct TrieNode {
+    struct TrieNode *parent;     /**< Wskaźnik na rodzica węzła. */
+    struct TrieNode **children;  /**< Tablica wskaźników na dzieci węzła. */
+    bool isTerminal;      /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
+                             jest liściem, FALSE w przeciwnym wypadku. */
+    char *value; /**< Wartość węzła. Jeśli nie jest pusta (ma wartość inną niż
+                     NULL), to jest poprawnym ciągiem cyfr. */
+};
 typedef struct TrieNode TrieNode;
 
-struct TrieNode {
-    TrieNode *parent;     /* Wskaźnik na rodzica węzła. */
-    TrieNode **children;  /* Tablica wskaźników na dzieci węzła. */
-    bool isTerminal;      /* Wartość logiczna przyjmująca TRUE, jeśli węzeł
-                             jest liściem, FALSE w przeciwnym wypadku. */
-    char *value; /* Wartość węzła. Jeśli nie jest pusta (ma wartość NULL), to jest
-                    poprawnym ciągiem cyfr. */
-};
-
 /** @brief Tworzy nowy węzeł.
- * Tworzy nowy węzeł trie o pustej wartości. Ustawia jego wskaźnik
- * rodzica na @p parent.
+ * Tworzy nowy węzeł @p TrieNode o pustej wartości. Ustawia jego wskaźnik
+ * rodzica na @p parent. Powstały węzeł musi być zwolniony za pomocą funkcji
+ * trieDelete().
  * @param[in,out] parent - wskaźnik na węzeł rodzica.
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  *         alokować pamięci.

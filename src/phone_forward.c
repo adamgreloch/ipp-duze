@@ -11,15 +11,28 @@
 #include "phone_forward.h"
 #include "trie.h"
 
-#define INIT_SIZE 64
+// TODO odporność na niepoprawny input
 
+/** @brief Struktura przechowująca przekierowania telefonów.
+ * Struktura przechowująca przekierowania telefonów trzyma je w postaci
+ * węzłów w drzewie trie. Prefiksy zaczynają się w korzeniu drzewa i kończą w
+ * odpowiednich węzłach. Jeśli dla danego prefiksu ustalono przekierowanie,
+ * to wartością w węźle jest ciąg znaków go reprezentujący.
+ * @see trie.h
+ */
 struct PhoneForward {
-    TrieNode *root;
+    TrieNode *root; /**< Wskaźnik na korzeń struktury. */
 };
 
+#define INIT_SIZE 64 /**< Początkowy rozmiar dynamicznej tablicy. */
+
+/**
+ * Struktura przechowująca przekierowania numerów telefonów.
+ */
 struct PhoneNumbers {
-    size_t amount;
-    char **str;
+    size_t amount; /**< Liczba numerów telefonów przechowywanych w @p str. */
+    char **str; /**< Dynamiczna tablica o początkowym rozmiarze @p INIT_SIZE,
+                     w której przechowywane są numery telefonów. */
 };
 
 static bool isValidNumber(char const *str) {
@@ -95,6 +108,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
         }
 
     numbers->str[0] = new;
+    numbers->amount = 1;
 
     return numbers;
 }
