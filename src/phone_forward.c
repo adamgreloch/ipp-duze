@@ -24,14 +24,15 @@ struct PhoneForward {
     TrieNode *root; /**< Wskaźnik na korzeń struktury. */
 };
 
-#define INIT_SIZE 64 /**< Początkowy rozmiar dynamicznej tablicy. */
+#define INIT_SIZE 64 /**< Początkowy rozmiar dynamicznej tablicy @p
+                          PhoneNumbers#nums */
 
 /**
  * Struktura przechowująca przekierowania numerów telefonów.
  */
 struct PhoneNumbers {
     size_t amount; /**< Liczba numerów telefonów przechowywanych w @p str. */
-    char **str; /**< Dynamiczna tablica o początkowym rozmiarze @p INIT_SIZE,
+    char **nums; /**< Dynamiczna tablica o początkowym rozmiarze @p INIT_SIZE,
                      w której przechowywane są numery telefonów. */
     size_t size; /**< Rozmiar tablicy. */
 };
@@ -86,12 +87,17 @@ void phfwdRemove(PhoneForward *pf, char const *num) {
         trieRemoveStr(&(pf->root), num);
 }
 
+/**
+ * @brief Alokuje nową strukturę @p PhoneNumbers.
+ * @return Wskaźnik na strukturę @p PhoneNumbers lub NULL, gdy nie udało się
+ *         alokować pamięci.
+ */
 static PhoneNumbers *pnumNew() {
     PhoneNumbers *numbers = malloc(sizeof(PhoneNumbers));
     if (!numbers) return NULL;
 
-    numbers->str = calloc(INIT_SIZE, sizeof(char *));
-    if (!numbers->str) return NULL;
+    numbers->nums = calloc(INIT_SIZE, sizeof(char *));
+    if (!numbers->nums) return NULL;
 
     numbers->size = INIT_SIZE;
     numbers->amount = 0;
@@ -109,7 +115,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
     TrieNode *found = trieFind(pf->root, num, &charsToSubstitute);
     if (!found) {
-        numbers->str[0] = (char *) num;
+        numbers->nums[0] = (char *) num;
         return numbers;
     }
 
@@ -137,7 +143,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
             j++;
         }
 
-    numbers->str[0] = new;
+    numbers->nums[0] = new;
     numbers->amount++;
 
     return numbers;
@@ -151,12 +157,12 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
 void phnumDelete(PhoneNumbers *pnum) {
     if (!pnum) return;
     for (size_t i = 0; i < pnum->amount; i++)
-        free(pnum->str[i]);
-    free(pnum->str);
+        free(pnum->nums[i]);
+    free(pnum->nums);
     free(pnum);
 }
 
 char const *phnumGet(PhoneNumbers const *pnum, size_t idx) {
     if (!pnum || idx > pnum->amount) return NULL;
-    return pnum->str[idx];
+    return pnum->nums[idx];
 }
