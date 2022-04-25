@@ -21,11 +21,13 @@
  */
 struct TrieNode {
     struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
-    struct TrieNode **children; /**< Tablica wskaźników na dzieci węzła. */
+    struct TrieNode *children[ALLNUM]; /**< Tablica wskaźników na dzieci węzła. */
     bool isTerminal; /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
                           jest liściem, FALSE w przeciwnym wypadku. */
     char *value; /**< Wartość węzła. Jeśli nie jest pusta (ma wartość inną niż
                       NULL), to jest poprawnym ciągiem cyfr. */
+    int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
+                          dziecka. */
 };
 typedef struct TrieNode TrieNode;
 

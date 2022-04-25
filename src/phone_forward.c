@@ -33,6 +33,7 @@ struct PhoneNumbers {
     size_t amount; /**< Liczba numerów telefonów przechowywanych w @p str. */
     char **str; /**< Dynamiczna tablica o początkowym rozmiarze @p INIT_SIZE,
                      w której przechowywane są numery telefonów. */
+    size_t size; /**< Rozmiar tablicy. */
 };
 
 /**
@@ -84,6 +85,7 @@ static PhoneNumbers *pnumNew() {
     PhoneNumbers *numbers = malloc(sizeof(PhoneNumbers));
     numbers->str = calloc(INIT_SIZE, sizeof(char *));
     if (!numbers->str) return NULL;
+    numbers->size = INIT_SIZE;
     numbers->amount = 0;
 
     return numbers;
@@ -132,6 +134,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 }
 
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
+    if (!pf || !num) return NULL;
     return NULL;
 }
 

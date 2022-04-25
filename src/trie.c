@@ -15,24 +15,54 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     if (!node) return NULL;
 
     node->parent = parent;
-    node->children = calloc(ALLNUM, sizeof(TrieNode *));
+    for (int i = 0; i < ALLNUM; i++)
+        node->children[i] = NULL;
     node->isTerminal = true;
     node->value = NULL;
+    node->lastVisited = -1;
 
     return node;
+}
+
+/**
+ * Zwalnia bezpośrednio dostępne struktury wskaźnikowe z poziomu @p node.
+ * @param node
+ */
+static void freeNode(TrieNode *node) {
+    free(node->value);
+    free(node);
 }
 
 void trieDelete(TrieNode *node) {
     if (!node) return;
 
-    for (int i = 0; i < ALLNUM; i++) {
-        trieDelete(node->children[i]);
-        node->children[i] = NULL;
-    }
+    int i;
+    TrieNode *toFree;
+    TrieNode *curr = node;
 
-    free(node->children);
-    free(node->value);
-    free(node);
+    while (curr)
+        if (curr->isTerminal || curr->lastVisited == ALLNUM - 1) {
+            // Jeśli napotkany węzeł nie ma dzieci, to zwalniamy go.
+            if (curr == node) {
+                freeNode(curr);
+                curr = NULL;
+            }
+            else {
+                toFree = curr;
+                curr = curr->parent;
+                curr->children[curr->lastVisited] = NULL;
+                freeNode(toFree);
+            }
+        }
+        else {
+            // Faza wyszukiwania węzłów bez dzieci do usunięcia.
+            i = curr->lastVisited + 1;
+            if (curr->children[i]) {
+                curr->lastVisited = i;
+                curr = curr->children[i];
+            } else
+                curr->lastVisited++;
+        }
 }
 
 bool trieNodeSet(TrieNode *node, const char *value) {
@@ -53,21 +83,25 @@ const char *trieNodeGet(TrieNode *node) {
 TrieNode *trieFind(TrieNode *v, const char *str, size_t *length) {
     if (!v) return NULL;
     int j;
+    TrieNode *lastValueNode = NULL;
+
     *length = 0;
+    size_t distance = 0;
     bool leaf = false;
     for (size_t i = 0; !leaf && str[i] != '\0'; i++) {
         j = str[i] - '0';
         if (!v->children[j]) leaf = true;
         else {
             v = v->children[j];
-            (*length)++;
+            distance++;
+        }
+        if (v->value) {
+            lastValueNode = v;
+            *length += distance;
+            distance = 0;
         }
     }
-    while (v && !v->value) {
-        v = v->parent;
-        (*length)--;
-    }
-    return v;
+    return lastValueNode;
 }
 
 TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
@@ -80,8 +114,11 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
         j = str[i] - '0';
         if (!v->children[j]) {
             v->children[j] = trieNodeNew(v);
-            if (!v->children[j]) return NULL; // malloc failed
+            if (!v->children[j]) return NULL;
             v->isTerminal = false;
+            v->lastVisited = -1; /* Nastąpiła zmiana struktury drzewa, więc
+                                    resetujemy stan odwiedzenia tego węzła
+                                    przez trieDelete(). */
         }
         v = v->children[j];
     }
@@ -91,7 +128,7 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
 void trieRemoveStr(TrieNode **rootPtr, const char *str) {
     if (*rootPtr) {
         TrieNode *v = *rootPtr;
-        int j;
+        int j = 0;
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
             j = str[i] - '0';
