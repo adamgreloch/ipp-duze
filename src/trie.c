@@ -50,6 +50,8 @@ void trieDelete(TrieNode *node) {
             else {
                 toFree = curr;
                 curr = curr->parent;
+                /* Przekazany do zwolnienia curr był dzieckiem nowego curr.
+                 * Musimy więc usunąć skojarzenie między nimi. */
                 curr->children[curr->lastVisited] = NULL;
                 freeNode(toFree);
             }
@@ -60,7 +62,8 @@ void trieDelete(TrieNode *node) {
             if (curr->children[i]) {
                 curr->lastVisited = i;
                 curr = curr->children[i];
-            } else
+            }
+            else
                 curr->lastVisited++;
         }
 }
@@ -71,7 +74,7 @@ bool trieNodeSet(TrieNode *node, const char *value) {
     node->value = malloc((strlen(value) + 1) * sizeof(char));
     if (!node->value) return false;
 
-    strcpy(node->value, value); // TODO sprawdzić czy tak jest poprawnie
+    strcpy(node->value, value);
     return true;
 }
 
@@ -105,8 +108,9 @@ TrieNode *trieFind(TrieNode *v, const char *str, size_t *length) {
 }
 
 TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
-    if (!(*rootPtr))
-        *rootPtr = trieNodeNew(NULL);
+    if (!(*rootPtr)) *rootPtr = trieNodeNew(NULL);
+    if (!(*rootPtr)) return NULL;
+
     int j;
     TrieNode *v = *rootPtr;
 

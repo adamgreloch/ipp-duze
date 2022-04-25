@@ -45,11 +45,15 @@ struct PhoneNumbers {
  *         przeciwnym wypadku.
  */
 static bool isValidNumber(char const *str) {
+    if (!str) return false;
+
     size_t i = 0;
     while (str[i] != '\0') {
         if (str[i] < '0' || '9' < str[i]) return false;
         i++;
     }
+    if (i == 0) return false;
+
     return true;
 }
 
@@ -62,6 +66,7 @@ PhoneForward *phfwdNew(void) {
 }
 
 void phfwdDelete(PhoneForward *pf) {
+    if (!pf) return;
     trieDelete(pf->root);
     free(pf);
 }
@@ -83,8 +88,11 @@ void phfwdRemove(PhoneForward *pf, char const *num) {
 
 static PhoneNumbers *pnumNew() {
     PhoneNumbers *numbers = malloc(sizeof(PhoneNumbers));
+    if (!numbers) return NULL;
+
     numbers->str = calloc(INIT_SIZE, sizeof(char *));
     if (!numbers->str) return NULL;
+
     numbers->size = INIT_SIZE;
     numbers->amount = 0;
 
@@ -107,7 +115,9 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
     const char *fwdPrefix = trieNodeGet(found);
 
-    size_t newNumLength = strlen(num) + strlen(fwdPrefix) - charsToSubstitute;
+    size_t fwdPrefixLength = strlen(fwdPrefix);
+    size_t numLength = strlen(num);
+    size_t newNumLength = numLength + fwdPrefixLength - charsToSubstitute;
 
     char *new = calloc((newNumLength + 1), sizeof(char));
     if (!new) {
@@ -118,12 +128,12 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     size_t i = 0, j = 0;
 
     while (i + j < newNumLength)
-        if (i < strlen(fwdPrefix)) {
+        if (i < fwdPrefixLength) {
             new[i] = fwdPrefix[i];
             i++;
         }
         else {
-            new[strlen(fwdPrefix) + j] = num[j + charsToSubstitute];
+            new[fwdPrefixLength + j] = num[j + charsToSubstitute];
             j++;
         }
 
