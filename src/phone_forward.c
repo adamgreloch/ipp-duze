@@ -11,8 +11,6 @@
 #include "phone_forward.h"
 #include "trie.h"
 
-// TODO odporność na niepoprawny input
-
 /** @brief Struktura przechowująca przekierowania telefonów.
  * Struktura przechowująca przekierowania telefonów trzyma je w postaci
  * węzłów w drzewie trie. Prefiksy zaczynają się w korzeniu drzewa i kończą w
@@ -73,8 +71,9 @@ void phfwdDelete(PhoneForward *pf) {
 }
 
 bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
-    if (strcmp(num1, num2) == 0) return false;
+    if (!pf) return false;
     if (!isValidNumber(num1) || !isValidNumber(num2)) return false;
+    if (strcmp(num1, num2) == 0) return false;
 
     TrieNode *v = trieInsertStr(&(pf->root), num1);
 
@@ -83,7 +82,7 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
 }
 
 void phfwdRemove(PhoneForward *pf, char const *num) {
-    if (isValidNumber(num))
+    if (pf && isValidNumber(num))
         trieRemoveStr(&(pf->root), num);
 }
 
@@ -106,14 +105,16 @@ static PhoneNumbers *pnumNew() {
 }
 
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
+    if (!pf) return NULL;
+
     PhoneNumbers *numbers = pnumNew();
     if (!numbers) return NULL;
 
     if (!isValidNumber(num)) return numbers;
 
-    size_t charsToSubstitute;
+    size_t toReplace;
 
-    TrieNode *found = trieFind(pf->root, num, &charsToSubstitute);
+    TrieNode *found = trieFind(pf->root, num, &toReplace);
     if (!found) {
         numbers->nums[0] = (char *) num;
         return numbers;
@@ -123,7 +124,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
     size_t fwdPrefixLength = strlen(fwdPrefix);
     size_t numLength = strlen(num);
-    size_t newNumLength = numLength + fwdPrefixLength - charsToSubstitute;
+    size_t newNumLength = numLength + fwdPrefixLength - toReplace;
 
     char *new = calloc((newNumLength + 1), sizeof(char));
     if (!new) {
@@ -139,7 +140,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
             i++;
         }
         else {
-            new[fwdPrefixLength + j] = num[j + charsToSubstitute];
+            new[fwdPrefixLength + j] = num[j + toReplace];
             j++;
         }
 

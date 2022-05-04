@@ -29,7 +29,7 @@ struct TrieNode {
     int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
                           dziecka. */
 };
-typedef struct TrieNode TrieNode;
+typedef struct TrieNode TrieNode; /**< @struct TrieNode */
 
 /** @brief Tworzy nowy węzeł.
  * Tworzy nowy węzeł @p TrieNode o pustej wartości. Ustawia jego wskaźnik
