@@ -53,11 +53,12 @@ void trieDelete(TrieNode *node);
  * poprawność @p value.
  * @param[in,out] node - wskaźnik na węzeł w którym modyfikowana jest wartość.
  * @param[in] value - ustawiany ciąg znaków.
+ * @param[in] length - długość @p value (nie licząc znaku terminującego).
  * @return Wartość @p true, jeśli wartość została ustawiona.
  *         Wartość @p false, jeśli @p node ma wartość NULL, bądź nie udało się
  *         alokować pamięci.
  */
-bool trieNodeSet(TrieNode *node, const char *value);
+bool trieNodeSet(TrieNode *node, const char *value, size_t length);
 
 /** @brief Zwraca wartość w węźle @p node.
  * @param[in] node - wskaźnik na oglądany węzeł.

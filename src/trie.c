@@ -68,10 +68,10 @@ void trieDelete(TrieNode *node) {
         }
 }
 
-bool trieNodeSet(TrieNode *node, const char *value) {
+bool trieNodeSet(TrieNode *node, const char *value, size_t length) {
     if (!node) return false;
 
-    node->value = realloc(node->value, (strlen(value) + 1) * sizeof(char));
+    node->value = realloc(node->value, (length + 1) * sizeof(char));
     if (!node->value) return false;
 
     strcpy(node->value, value);

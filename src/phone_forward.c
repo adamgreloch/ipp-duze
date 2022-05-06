@@ -38,22 +38,22 @@ struct PhoneNumbers {
 /**
  * @brief Sprawdza, czy @p str jest numerem telefonu.
  * Sprawdza, czy ciąg znaków @p str reprezentuje numer telefonu tzn.
- * czy jest ciągiem złożonym wyłącznie z cyfr \f$0,1,...,9\f$.
+ * czy jest ciągiem złożonym wyłącznie z cyfr \f$0,1,...,9\f$. Liczy jego
+ * długość.
  * @param[in] str - sprawdzany ciąg znaków.
- * @return Wartość @p TRUE, jeśli @p str jest prawidłowy lub @p FALSE w
- *         przeciwnym wypadku.
+ * @return Dodatnia wartość liczbowa, jeśli @p str jest prawidłowy lub
+ *         zero przeciwnym wypadku.
  */
-static bool isValidNumber(char const *str) {
+static size_t isNumber(char const *str) {
     if (!str) return false;
 
     size_t i = 0;
     while (str[i] != '\0') {
-        if (str[i] < '0' || '9' < str[i]) return false;
+        if (str[i] < '0' || '9' < str[i]) return 0;
         i++;
     }
-    if (i == 0) return false;
 
-    return true;
+    return i;
 }
 
 PhoneForward *phfwdNew(void) {
@@ -72,17 +72,18 @@ void phfwdDelete(PhoneForward *pf) {
 
 bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (!pf) return false;
-    if (!isValidNumber(num1) || !isValidNumber(num2)) return false;
+    size_t length;
+    if (!isNumber(num1) || !(length = isNumber(num2))) return false;
     if (strcmp(num1, num2) == 0) return false;
 
     TrieNode *v = trieInsertStr(&(pf->root), num1);
 
     if (!v) return false;
-    return trieNodeSet(v, num2);
+    return trieNodeSet(v, num2, length);
 }
 
 void phfwdRemove(PhoneForward *pf, char const *num) {
-    if (pf && isValidNumber(num))
+    if (pf && isNumber(num))
         trieRemoveStr(&(pf->root), num);
 }
 
@@ -110,7 +111,8 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     PhoneNumbers *numbers = pnumNew();
     if (!numbers) return NULL;
 
-    if (!isValidNumber(num)) return numbers;
+    size_t numLength = isNumber(num);
+    if (!numLength) return numbers;
 
     size_t toReplace;
 
@@ -123,7 +125,6 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     const char *fwdPrefix = trieNodeGet(found);
 
     size_t fwdPrefixLength = strlen(fwdPrefix);
-    size_t numLength = strlen(num);
     size_t newNumLength = numLength + fwdPrefixLength - toReplace;
 
     char *new = calloc((newNumLength + 1), sizeof(char));
