@@ -42,7 +42,7 @@ void trieDelete(TrieNode *node) {
 
     while (curr)
         if (curr->isTerminal || curr->lastVisited == ALLNUM - 1) {
-            // Jeśli napotkany węzeł nie ma dzieci, to zwalniamy go.
+            /* Jeśli napotkany węzeł nie ma dzieci, to zwalniamy go. */
             if (curr == node) {
                 freeNode(curr);
                 curr = NULL;
@@ -57,7 +57,7 @@ void trieDelete(TrieNode *node) {
             }
         }
         else {
-            // Faza wyszukiwania węzłów bez dzieci do usunięcia.
+            /* W przeciwnym razie szukamy węzłów bez dzieci do usunięcia. */
             i = curr->lastVisited + 1;
             if (curr->children[i]) {
                 curr->lastVisited = i;
@@ -71,7 +71,7 @@ void trieDelete(TrieNode *node) {
 bool trieNodeSet(TrieNode *node, const char *value) {
     if (!node) return false;
 
-    node->value = malloc((strlen(value) + 1) * sizeof(char));
+    node->value = realloc(node->value, (strlen(value) + 1) * sizeof(char));
     if (!node->value) return false;
 
     strcpy(node->value, value);
@@ -120,9 +120,9 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
             v->children[j] = trieNodeNew(v);
             if (!v->children[j]) return NULL;
             v->isTerminal = false;
-            v->lastVisited = -1; /* Nastąpiła zmiana struktury drzewa, więc
-                                    resetujemy stan odwiedzenia tego węzła
-                                    przez trieDelete(). */
+            /* Nastąpiła zmiana struktury drzewa, więc resetujemy jeszcze stan
+             * odwiedzenia tego węzła przez trieDelete(): */
+            v->lastVisited = -1;
         }
         v = v->children[j];
     }
