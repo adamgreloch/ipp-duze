@@ -109,13 +109,13 @@ static PhoneNumbers *pnumNew() {
  * prefiks a po nich cyfry, które pozostają bez zmian. Zakłada poprawność
  * wszystkich danych wejściowych.
  *
- * @param num - wskaźnik na numer.
- * @param fwdPrefix - wskaźnik na nowy prefiks.
- * @param numLength - długość numeru.
- * @param toReplace - liczba znaków do usunięcia z numeru przed wstawieniem
+ * @param[in] num - wskaźnik na numer.
+ * @param[in] fwdPrefix - wskaźnik na nowy prefiks.
+ * @param[in] numLength - długość numeru.
+ * @param[in] toReplace - liczba znaków do usunięcia z numeru przed wstawieniem
  * prefiksu.
- * @return Wskaźnik na numer z nowym prefiksem, bądź NULL, gdy nie udało się
- * alokować pamięci.
+ * @return Wskaźnik na napis reprezentujący numer telefonu z nowym prefiksem
+ * lub NULL, gdy nie udało się alokować pamięci.
  */
 static char *replacePnumPrefix(char const *num, char const *fwdPrefix,
                                size_t numLength, size_t toReplace) {
