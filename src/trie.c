@@ -15,8 +15,8 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     if (!node) return NULL;
 
     node->parent = parent;
-    for (int i = 0; i < ALLNUM; i++)
-        node->children[i] = NULL;
+    for (int idx = 0; idx < ALLNUM; idx++)
+        node->children[idx] = NULL;
     node->isTerminal = true;
     node->value = NULL;
     node->lastVisited = -1;
@@ -25,8 +25,8 @@ TrieNode *trieNodeNew(TrieNode *parent) {
 }
 
 /**
- * Zwalnia bezpośrednio dostępne struktury wskaźnikowe z poziomu @p node.
- * @param node
+ * Zwalnia wartość węzła @p node oraz sam węzeł.
+ * @param node - wskaźnik na węzeł.
  */
 static void freeNode(TrieNode *node) {
     free(node->value);
@@ -36,7 +36,7 @@ static void freeNode(TrieNode *node) {
 void trieDelete(TrieNode *node) {
     if (!node) return;
 
-    int i;
+    int idx;
     TrieNode *toFree;
     TrieNode *curr = node;
 
@@ -58,10 +58,10 @@ void trieDelete(TrieNode *node) {
         }
         else {
             /* W przeciwnym razie szukamy węzłów bez dzieci do usunięcia. */
-            i = curr->lastVisited + 1;
-            if (curr->children[i]) {
-                curr->lastVisited = i;
-                curr = curr->children[i];
+            idx = curr->lastVisited + 1;
+            if (curr->children[idx]) {
+                curr->lastVisited = idx;
+                curr = curr->children[idx];
             }
             else
                 curr->lastVisited++;
@@ -83,48 +83,48 @@ const char *trieNodeGet(TrieNode *node) {
     return node->value;
 }
 
-TrieNode *trieFind(TrieNode *v, const char *str, size_t *length) {
-    if (!v) return NULL;
-    int j;
-    TrieNode *lastValueNode = NULL;
+TrieNode *trieFind(TrieNode *root, const char *str, size_t *length) {
+    if (!root) return NULL;
+    int idx;
+    TrieNode *lastWithValue = NULL;
 
     *length = 0;
     size_t distance = 0;
     bool leaf = false;
     for (size_t i = 0; !leaf && str[i] != '\0'; i++) {
-        j = str[i] - '0';
-        if (!v->children[j]) leaf = true;
+        idx = str[i] - '0';
+        if (!root->children[idx]) leaf = true;
         else {
-            v = v->children[j];
+            root = root->children[idx];
             distance++;
         }
-        if (v->value) {
-            lastValueNode = v;
+        if (root->value) {
+            lastWithValue = root;
             *length += distance;
             distance = 0;
         }
     }
-    return lastValueNode;
+    return lastWithValue;
 }
 
 TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
     if (!(*rootPtr)) *rootPtr = trieNodeNew(NULL);
     if (!(*rootPtr)) return NULL;
 
-    int j;
+    int idx;
     TrieNode *v = *rootPtr;
 
     for (size_t i = 0; str[i] != '\0'; i++) {
-        j = str[i] - '0';
-        if (!v->children[j]) {
-            v->children[j] = trieNodeNew(v);
-            if (!v->children[j]) return NULL;
+        idx = str[i] - '0';
+        if (!v->children[idx]) {
+            v->children[idx] = trieNodeNew(v);
+            if (!v->children[idx]) return NULL;
             v->isTerminal = false;
             /* Nastąpiła zmiana struktury drzewa, więc resetujemy jeszcze stan
-             * odwiedzenia tego węzła przez trieDelete(): */
+             * odwiedzenia tego węzła: */
             v->lastVisited = -1;
         }
-        v = v->children[j];
+        v = v->children[idx];
     }
     return v;
 }
@@ -132,16 +132,16 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
 void trieRemoveStr(TrieNode **rootPtr, const char *str) {
     if (*rootPtr) {
         TrieNode *v = *rootPtr;
-        int j = 0;
+        int idx = 0;
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
-            j = str[i] - '0';
-            if (!v || !v->children[j]) mayExist = false;
+            idx = str[i] - '0';
+            if (!v || !v->children[idx]) mayExist = false;
             else
-                v = v->children[j];
+                v = v->children[idx];
         }
         if (mayExist) {
-            v->parent->children[j] = NULL;
+            v->parent->children[idx] = NULL;
             trieDelete(v);
             v = NULL;
         }

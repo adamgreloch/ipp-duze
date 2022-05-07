@@ -38,21 +38,19 @@ struct PhoneNumbers {
 /**
  * @brief Sprawdza, czy @p str jest numerem telefonu.
  * Sprawdza, czy ciąg znaków @p str reprezentuje numer telefonu tzn.
- * czy jest ciągiem złożonym wyłącznie z cyfr \f$0,1,...,9\f$. Liczy jego
- * długość.
+ * czy jest niepustym ciągiem złożonym wyłącznie ze znaków \f$0,1,...,9\f$ i
+ * zakończonym znakiem terminującym '\0'. Liczy długość numeru.
  * @param[in] str - sprawdzany ciąg znaków.
- * @return Dodatnia wartość liczbowa, jeśli @p str jest prawidłowy lub
- *         zero przeciwnym wypadku.
+ * @return Dodatnia wartość liczbowa reprezentująca długość numeru, jeśli @p
+ * str jest numerem telefonu lub zero przeciwnym wypadku.
  */
 static size_t isNumber(char const *str) {
     if (!str) return false;
-
     size_t i = 0;
     while (str[i] != '\0') {
         if (str[i] < '0' || '9' < str[i]) return 0;
         i++;
     }
-
     return i;
 }
 
@@ -90,7 +88,7 @@ void phfwdRemove(PhoneForward *pf, char const *num) {
 /**
  * @brief Alokuje nową strukturę @p PhoneNumbers.
  * @return Wskaźnik na strukturę @p PhoneNumbers lub NULL, gdy nie udało się
- *         alokować pamięci.
+ * alokować pamięci.
  */
 static PhoneNumbers *pnumNew() {
     PhoneNumbers *numbers = malloc(sizeof(PhoneNumbers));
