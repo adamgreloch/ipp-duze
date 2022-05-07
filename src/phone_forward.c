@@ -108,12 +108,11 @@ static PhoneNumbers *pnumNew() {
  * Alokuje tablicę znaków o długości nowego numeru. Wstawia do niej nowy
  * prefiks a po nich cyfry, które pozostają bez zmian. Zakłada poprawność
  * wszystkich danych wejściowych.
- *
  * @param[in] num - wskaźnik na numer.
  * @param[in] fwdPrefix - wskaźnik na nowy prefiks.
  * @param[in] numLength - długość numeru.
- * @param[in] toReplace - liczba znaków do usunięcia z numeru przed wstawieniem
- * prefiksu.
+ * @param[in] toReplace - liczba początkowych znaków numeru, które zastępuje
+ *                        nowy prefiks.
  * @return Wskaźnik na napis reprezentujący numer telefonu z nowym prefiksem
  * lub NULL, gdy nie udało się alokować pamięci.
  */

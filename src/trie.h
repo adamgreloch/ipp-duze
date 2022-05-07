@@ -71,7 +71,7 @@ const char *trieNodeGet(TrieNode *node);
  * @param[in] root - wskaźnik na korzeń przeszukiwanego drzewa.
  * @param[in] str - ciąg znaków, dla którego szukany jest najdłuższy prefiks.
  * @param[in,out] length - wskaźnik na zmienną, w której zostanie zapisana
- * długość znalezionego prefiksu.
+ *                         długość znalezionego prefiksu.
  * @return Wskaźnik na węzeł kończący najdłuższy prefiks lub NULL, gdy @p root
  * ma wartość NULL, lub gdy szukany prefiks nie istnieje.
  */
