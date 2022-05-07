@@ -103,33 +103,27 @@ static PhoneNumbers *pnumNew() {
     return numbers;
 }
 
-PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
-    if (!pf) return NULL;
-
-    PhoneNumbers *numbers = pnumNew();
-    if (!numbers) return NULL;
-
-    size_t numLength = isNumber(num);
-    if (!numLength) return numbers;
-
-    size_t toReplace;
-
-    TrieNode *found = trieFind(pf->root, num, &toReplace);
-    if (!found) {
-        numbers->nums[0] = (char *) num;
-        return numbers;
-    }
-
-    const char *fwdPrefix = trieNodeGet(found);
-
+/**
+ * @brief Zmienia prefiks podanego numeru na nowy.
+ * Alokuje tablicę znaków o długości nowego numeru. Wstawia do niej nowy
+ * prefiks a po nich cyfry, które pozostają bez zmian. Zakłada poprawność
+ * wszystkich danych wejściowych.
+ *
+ * @param num - wskaźnik na numer.
+ * @param fwdPrefix - wskaźnik na nowy prefiks.
+ * @param numLength - długość numeru.
+ * @param toReplace - liczba znaków do usunięcia z numeru przed wstawieniem
+ * prefiksu.
+ * @return Wskaźnik na numer z nowym prefiksem, bądź NULL, gdy nie udało się
+ * alokować pamięci.
+ */
+static char *replacePnumPrefix(char const *num, char const *fwdPrefix,
+                               size_t numLength, size_t toReplace) {
     size_t fwdPrefixLength = strlen(fwdPrefix);
     size_t newNumLength = numLength + fwdPrefixLength - toReplace;
 
     char *new = calloc((newNumLength + 1), sizeof(char));
-    if (!new) {
-        phnumDelete(numbers);
-        return NULL;
-    }
+    if (!new) return NULL;
 
     size_t i = 0, j = 0;
 
@@ -143,7 +137,33 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
             j++;
         }
 
-    numbers->nums[0] = new;
+    return new;
+}
+
+PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
+    if (!pf) return NULL;
+
+    PhoneNumbers *numbers = pnumNew();
+    if (!numbers) return NULL;
+
+    size_t length = isNumber(num);
+    if (!length) return numbers;
+
+    size_t toReplace;
+    TrieNode *found = trieFind(pf->root, num, &toReplace);
+    if (!found) {
+        numbers->nums[0] = (char *) num;
+        return numbers;
+    }
+
+    char *replaced = replacePnumPrefix(num, trieNodeGet(found), length,
+                                       toReplace);
+    if (!replaced) {
+        phnumDelete(numbers);
+        return NULL;
+    }
+
+    numbers->nums[0] = replaced;
     numbers->amount++;
 
     return numbers;
