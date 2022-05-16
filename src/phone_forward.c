@@ -56,9 +56,10 @@ static size_t isNumber(char const *str) {
 
 PhoneForward *phfwdNew(void) {
     PhoneForward *pf = malloc(sizeof(PhoneForward));
-    if (!pf) return NULL;
-    pf->root = trieNodeNew(NULL);
-    if (!pf->root) return NULL;
+    if (!pf || !(pf->root = trieNodeNew(NULL))) {
+        free(pf);
+        return NULL;
+    }
     return pf;
 }
 
@@ -95,7 +96,10 @@ static PhoneNumbers *pnumNew() {
     if (!numbers) return NULL;
 
     numbers->nums = calloc(INIT_SIZE, sizeof(char *));
-    if (!numbers->nums) return NULL;
+    if (!numbers->nums) {
+        free(numbers);
+        return NULL;
+    }
 
     numbers->size = INIT_SIZE;
     numbers->amount = 0;
