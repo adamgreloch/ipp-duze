@@ -1,6 +1,6 @@
 /** @file
  * Interfejs klasy obsługującej strukturę danych trie dla ciągów znaków
- * w systemie dziesiętnym.
+ * ze zbioru \f$\Omega=\{0,1,...,9\}\cup\{*, \#\}\f$.
  *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -13,8 +13,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define ALLNUM 10 /**< Rozmiar alfabetu w drzewie,
-                       czyli moc zbioru \f$\{0,1,...,9\}\f$. */
+#define ALLNUM 12 /**< Rozmiar alfabetu w drzewie,
+                       czyli moc zbioru \f$\Omega\f$. */
 
 /**
  * Struktura przechowująca węzeł drzewa trie.

@@ -24,6 +24,17 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     return node;
 }
 
+static int getIndex(char c) {
+    switch (c) {
+        case '*':
+            return 10;
+        case '#':
+            return 11;
+        default:
+            return c - '0';
+    }
+}
+
 /**
  * Zwalnia wartość węzła @p node oraz sam węzeł.
  * @param node - wskaźnik na węzeł.
@@ -92,7 +103,7 @@ TrieNode *trieFind(TrieNode *root, const char *str, size_t *length) {
     size_t distance = 0;
     bool leaf = false;
     for (size_t i = 0; !leaf && str[i] != '\0'; i++) {
-        idx = str[i] - '0';
+        idx = getIndex(str[i]);
         if (!root->children[idx]) leaf = true;
         else {
             root = root->children[idx];
@@ -115,7 +126,7 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
     TrieNode *v = *rootPtr;
 
     for (size_t i = 0; str[i] != '\0'; i++) {
-        idx = str[i] - '0';
+        idx = getIndex(str[i]);
         if (!v->children[idx]) {
             v->children[idx] = trieNodeNew(v);
             if (!v->children[idx]) return NULL;
@@ -135,7 +146,7 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
         int idx = 0;
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
-            idx = str[i] - '0';
+            idx = getIndex(str[i]);
             if (!v || !v->children[idx]) mayExist = false;
             else
                 v = v->children[idx];

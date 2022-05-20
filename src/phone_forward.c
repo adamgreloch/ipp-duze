@@ -48,7 +48,8 @@ static size_t isNumber(char const *str) {
     if (!str) return false;
     size_t i = 0;
     while (str[i] != '\0') {
-        if (str[i] < '0' || '9' < str[i]) return 0;
+        if (str[i] != '*' && str[i] != '#' && (str[i] < '0' || '9' < str[i]))
+            return 0;
         i++;
     }
     return i;
