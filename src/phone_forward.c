@@ -13,13 +13,25 @@
 
 /** @brief Struktura przechowująca przekierowania telefonów.
  * Struktura przechowująca przekierowania telefonów trzyma je w postaci
- * węzłów w drzewie trie. Prefiksy zaczynają się w korzeniu drzewa i kończą w
+ * węzłów w drzewie trie @p fwds. Prefiksy zaczynają się w korzeniu drzewa i kończą w
  * odpowiednich węzłach. Jeśli dla danego prefiksu ustalono przekierowanie,
  * to wartością w węźle jest ciąg znaków go reprezentujący.
+ *
+ * Węzeł drzewa @p origins stanowi ustalone przekierowanie, zaś jego wartościami
+ * są skojarzone z tym przekierowaniem prefiksy, przechowywane w tablicy. Np. efektem
+ * wywołania operacji
+ * @code
+ * phfwdAdd(pf, "2", "4");
+ * phfwdAdd(pf, "23", "4");
+ * @endcode
+ * będzie umieszczenie w @p origins w wierzchołku "4" prefiksów "2" oraz "23".
  * @see trie.h
  */
 struct PhoneForward {
-    TrieNode *root; /**< Wskaźnik na korzeń struktury. */
+    TrieNode *fwds; /**< Wskaźnik na korzeń struktury przechowującej jako węzły prefiksy
+                         dla których ustalono przekierowanie. */
+    TrieNode *origins; /**< Wskaźnik na korzeń struktury przechowującej jako węzły
+                            przekierowania. */
 };
 
 #define INIT_SIZE 64 /**< Początkowy rozmiar dynamicznej tablicy @p
@@ -57,7 +69,7 @@ static size_t isNumber(char const *str) {
 
 PhoneForward *phfwdNew(void) {
     PhoneForward *pf = malloc(sizeof(PhoneForward));
-    if (!pf || !(pf->root = trieNodeNew(NULL))) {
+    if (!pf || !(pf->fwds = trieNodeNew(NULL))) {
         free(pf);
         return NULL;
     }
@@ -66,7 +78,7 @@ PhoneForward *phfwdNew(void) {
 
 void phfwdDelete(PhoneForward *pf) {
     if (!pf) return;
-    trieDelete(pf->root);
+    trieDelete(pf->fwds);
     free(pf);
 }
 
@@ -76,7 +88,7 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (!isNumber(num1) || !(length = isNumber(num2))) return false;
     if (strcmp(num1, num2) == 0) return false;
 
-    TrieNode *v = trieInsertStr(&(pf->root), num1);
+    TrieNode *v = trieInsertStr(&(pf->fwds), num1);
 
     if (!v) return false;
     return trieNodeSet(v, num2, length);
@@ -84,7 +96,7 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
 
 void phfwdRemove(PhoneForward *pf, char const *num) {
     if (pf && isNumber(num))
-        trieRemoveStr(&(pf->root), num);
+        trieRemoveStr(&(pf->fwds), num);
 }
 
 /**
@@ -154,7 +166,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     if (!length) return numbers;
 
     size_t toReplace;
-    TrieNode *found = trieFind(pf->root, num, &toReplace);
+    TrieNode *found = trieFind(pf->fwds, num, &toReplace);
     if (!found) {
         numbers->nums[0] = (char *) num;
         return numbers;

@@ -18,7 +18,7 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     for (int idx = 0; idx < ALLNUM; idx++)
         node->children[idx] = NULL;
     node->isTerminal = true;
-    node->value = NULL;
+    node->seq = NULL;
     node->lastVisited = -1;
 
     return node;
@@ -40,7 +40,7 @@ static int getIndex(char c) {
  * @param node - wskaźnik na węzeł.
  */
 static void freeNode(TrieNode *node) {
-    free(node->value);
+    free(node->seq);
     free(node);
 }
 
@@ -82,16 +82,16 @@ void trieDelete(TrieNode *node) {
 bool trieNodeSet(TrieNode *node, const char *value, size_t length) {
     if (!node) return false;
 
-    node->value = realloc(node->value, (length + 1) * sizeof(char));
-    if (!node->value) return false;
+    node->seq = realloc(node->seq, (length + 1) * sizeof(char));
+    if (!node->seq) return false;
 
-    strcpy(node->value, value);
+    strcpy(node->seq, value);
     return true;
 }
 
 const char *trieNodeGet(TrieNode *node) {
     if (!node) return NULL;
-    return node->value;
+    return node->seq;
 }
 
 TrieNode *trieFind(TrieNode *root, const char *str, size_t *length) {
@@ -109,7 +109,7 @@ TrieNode *trieFind(TrieNode *root, const char *str, size_t *length) {
             root = root->children[idx];
             distance++;
         }
-        if (root->value) {
+        if (root->seq) {
             lastWithValue = root;
             *length += distance;
             distance = 0;

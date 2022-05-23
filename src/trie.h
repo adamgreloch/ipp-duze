@@ -1,6 +1,7 @@
 /** @file
  * Interfejs klasy obsługującej strukturę danych trie dla ciągów znaków
- * ze zbioru \f$\Omega=\{0,1,...,9\}\cup\{*, \#\}\f$.
+ * ze zbioru \f$\Omega=\{0,1,...,9\}\cup\{*, \#\}\f$ (zwanych odtąd
+ * poprawnymi ciągami znaków).
  *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -24,11 +25,15 @@ struct TrieNode {
     struct TrieNode *children[ALLNUM]; /**< Tablica wskaźników na dzieci węzła. */
     bool isTerminal; /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
                           jest liściem, FALSE w przeciwnym wypadku. */
-    char *value; /**< Wartość węzła. Jeśli nie jest pusta (ma wartość inną niż
-                      NULL), to jest poprawnym ciągiem cyfr. */
+    char *seq; /**< Wartość węzła, która, jeśli niepusta (ma wartość inną niż
+                      NULL), to jest poprawnym ciągiem znaków. */
     int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
                           dziecka. Resetowany do -1 przy zmianie
                           struktury poddrzew. */
+    char **multiple; /**< Wartość węzła, która, jeśli niepusta, to jest tablicą
+                          poprawnych ciągów znaków */
+    char **seqPtr; /**< Wskaźnik na poprawny ciąg znaków, znajdujący się w
+                       @p multiple pewnego węzła. */
 };
 typedef struct TrieNode TrieNode; /**< @struct TrieNode */
 
