@@ -6,9 +6,33 @@
  * @date 2022
  */
 
-#include <malloc.h>
 #include <string.h>
 #include "trie.h"
+#include "linkedList.h"
+
+struct TrieNode {
+    struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
+    struct TrieNode *children[ALLNUM]; /**< Tablica wskaźników na dzieci węzła. */
+    bool isTerminal; /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
+                          jest liściem, FALSE w przeciwnym wypadku. */
+    /**
+     * Wartość węzła, która, jeśli niepusta (ma wartość inną niż NULL), to jest
+     * poprawnym ciągiem znaków lub listą poprawnych ciągów znaków.
+     */
+    union {
+        char *seq; /**< Poprawny ciąg znaków. */
+        List *list; /**< Wskaźnik na listę poprawnych ciągów znaków. */
+    } value;
+
+    bool hasList; /**< [TYMCZASOWE] wartość logiczna przyjmująca TRUE, jeśli
+                        węzeł zawiera listę w @p value, FALSE jeśli zawiera
+                        poprawny ciąg znaków. */
+    int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
+                          dziecka. Resetowany do -1 przy zmianie
+                          struktury poddrzew. */
+    ListNode **seqPtr; /**< Wskaźnik na poprawny ciąg znaków, znajdujący
+                            się w @p list pewnego węzła. */
+};
 
 TrieNode *trieNodeNew(TrieNode *parent) {
     TrieNode *node = malloc(sizeof(TrieNode));
@@ -18,8 +42,13 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     for (int idx = 0; idx < ALLNUM; idx++)
         node->children[idx] = NULL;
     node->isTerminal = true;
-    node->seq = NULL;
     node->lastVisited = -1;
+
+    node->value.seq = NULL;
+    node->value.list = NULL;
+    node->hasList = false;
+
+    node->seqPtr = NULL;
 
     return node;
 }
@@ -39,8 +68,13 @@ static int getIndex(char c) {
  * Zwalnia wartość węzła @p node oraz sam węzeł.
  * @param node - wskaźnik na węzeł.
  */
-static void freeNode(TrieNode *node) {
-    free(node->seq);
+static void freeTrieNode(TrieNode *node) {
+    if (node->seqPtr)
+        removeListNode(*(node->seqPtr));
+
+    if (node->hasList) listDelete(node->value.list);
+    else free(node->value.seq);
+
     free(node);
 }
 
@@ -55,7 +89,7 @@ void trieDelete(TrieNode *node) {
         if (curr->isTerminal || curr->lastVisited == ALLNUM - 1) {
             /* Jeśli napotkany węzeł nie ma dzieci, to zwalniamy go. */
             if (curr == node) {
-                freeNode(curr);
+                freeTrieNode(curr);
                 curr = NULL;
             }
             else {
@@ -64,7 +98,7 @@ void trieDelete(TrieNode *node) {
                 /* Przekazany do zwolnienia curr był dzieckiem nowego curr.
                  * Musimy więc usunąć skojarzenie między nimi. */
                 curr->children[curr->lastVisited] = NULL;
-                freeNode(toFree);
+                freeTrieNode(toFree);
             }
         }
         else {
@@ -79,22 +113,37 @@ void trieDelete(TrieNode *node) {
         }
 }
 
-bool trieNodeSet(TrieNode *node, const char *value, size_t length) {
-    if (!node) return false;
+bool trieAddToList(TrieNode **rootPtr, const char *str, char *value) {
+    TrieNode *nodeOfStr = trieInsertStr(rootPtr, str);
 
-    node->seq = realloc(node->seq, (length + 1) * sizeof(char));
-    if (!node->seq) return false;
+    if (!nodeOfStr->value.list)
+        nodeOfStr->value.list = listInit();
 
-    strcpy(node->seq, value);
+    listAdd(nodeOfStr->value.list, value);
     return true;
 }
 
-const char *trieNodeGet(TrieNode *node) {
-    if (!node) return NULL;
-    return node->seq;
+bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length) {
+    if (!node) return false;
+
+    node->value.seq = realloc(node->value.seq, (length + 1) * sizeof(char));
+    if (!node->value.seq) return false;
+
+    strcpy(node->value.seq, value);
+    return true;
 }
 
-TrieNode *trieFind(TrieNode *root, const char *str, size_t *length) {
+List *trieNodeGetList(TrieNode *node) {
+    if (!node) return NULL;
+    return node->value.list;
+}
+
+const char *trieNodeGetSeq(TrieNode *node) {
+    if (!node) return NULL;
+    return node->value.seq;
+}
+
+TrieNode *trieFindSeq(TrieNode *root, const char *str, size_t *length) {
     if (!root) return NULL;
     int idx;
     TrieNode *lastWithValue = NULL;
@@ -109,7 +158,7 @@ TrieNode *trieFind(TrieNode *root, const char *str, size_t *length) {
             root = root->children[idx];
             distance++;
         }
-        if (root->seq) {
+        if (root->value.seq) {
             lastWithValue = root;
             *length += distance;
             distance = 0;

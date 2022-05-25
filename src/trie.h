@@ -13,6 +13,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "linkedList.h"
 
 #define ALLNUM 12 /**< Rozmiar alfabetu w drzewie,
                        czyli moc zbioru \f$\Omega\f$. */
@@ -20,21 +21,8 @@
 /**
  * Struktura przechowująca węzeł drzewa trie.
  */
-struct TrieNode {
-    struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
-    struct TrieNode *children[ALLNUM]; /**< Tablica wskaźników na dzieci węzła. */
-    bool isTerminal; /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
-                          jest liściem, FALSE w przeciwnym wypadku. */
-    char *seq; /**< Wartość węzła, która, jeśli niepusta (ma wartość inną niż
-                      NULL), to jest poprawnym ciągiem znaków. */
-    int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
-                          dziecka. Resetowany do -1 przy zmianie
-                          struktury poddrzew. */
-    char **multiple; /**< Wartość węzła, która, jeśli niepusta, to jest tablicą
-                          poprawnych ciągów znaków */
-    char **seqPtr; /**< Wskaźnik na poprawny ciąg znaków, znajdujący się w
-                       @p multiple pewnego węzła. */
-};
+struct TrieNode;
+
 typedef struct TrieNode TrieNode; /**< @struct TrieNode */
 
 /** @brief Tworzy nowy węzeł.
@@ -45,6 +33,7 @@ typedef struct TrieNode TrieNode; /**< @struct TrieNode */
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * alokować pamięci.
  */
+// TODO zaaktualizować dokumentację
 TrieNode *trieNodeNew(TrieNode *parent);
 
 /** @brief Usuwa drzewo zakorzenione w @p node.
@@ -62,13 +51,17 @@ void trieDelete(TrieNode *node);
  * @return Wartość @p true, jeśli wartość została ustawiona. Wartość @p
  * false, jeśli @p node ma wartość NULL, bądź nie udało się alokować pamięci.
  */
-bool trieNodeSet(TrieNode *node, const char *value, size_t length);
+// TODO zaaktualizować dokumentację
+bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length);
+
+List *trieNodeGetList(TrieNode *node);
 
 /** @brief Zwraca wartość węzła @p node.
  * @param[in] node - wskaźnik na oglądany węzeł.
  * @return Wartość w @p node, bądź NULL, jeśli @p node ma wartość NULL.
  */
-const char *trieNodeGet(TrieNode *node);
+// TODO zaaktualizować dokumentację
+const char *trieNodeGetSeq(TrieNode *node);
 
 /** @brief Znajduje najdłuższy prefiks @p str o niepustej wartości w drzewie.
  * Znajduje najdłuższy prefix ciągu @p str zawierający niepustą
@@ -80,7 +73,7 @@ const char *trieNodeGet(TrieNode *node);
  * @return Wskaźnik na węzeł kończący najdłuższy prefiks lub NULL, gdy @p root
  * ma wartość NULL, lub gdy szukany prefiks nie istnieje.
  */
-TrieNode *trieFind(TrieNode *root, const char *str, size_t *length);
+TrieNode *trieFindSeq(TrieNode *root, const char *str, size_t *length);
 
 /** @brief Umieszcza ciąg @p str w drzewie.
  * Umieszcza ciąg @p str w drzewie zakorzenionym w @p *rootPtr. Zakłada
@@ -99,5 +92,7 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str);
  * @param[in] str - ciąg znaków.
  */
 void trieRemoveStr(TrieNode **rootPtr, const char *str);
+
+bool trieAddToList(TrieNode **rootPtr, const char *str, char *value);
 
 #endif /* __TRIE_H__ */

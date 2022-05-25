@@ -91,7 +91,7 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     TrieNode *v = trieInsertStr(&(pf->fwds), num1);
 
     if (!v) return false;
-    return trieNodeSet(v, num2, length);
+    return trieNodeSetSeq(v, num2, length);
 }
 
 void phfwdRemove(PhoneForward *pf, char const *num) {
@@ -166,13 +166,13 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     if (!length) return numbers;
 
     size_t toReplace;
-    TrieNode *found = trieFind(pf->fwds, num, &toReplace);
+    TrieNode *found = trieFindSeq(pf->fwds, num, &toReplace);
     if (!found) {
         numbers->nums[0] = (char *) num;
         return numbers;
     }
 
-    char *replaced = replacePnumPrefix(num, trieNodeGet(found), length,
+    char *replaced = replacePnumPrefix(num, trieNodeGetSeq(found), length,
                                        toReplace);
     if (!replaced) {
         phnumDelete(numbers);
