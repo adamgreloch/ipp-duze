@@ -25,13 +25,13 @@ set(SOURCE_FILES
     src/trie.c
     src/phone_forward.h
     src/phone_forward.c
-    src/phone_forward_example.c)
+    src/phone_forward_example.c src/linkedList.c src/linkedList.h)
 set(SOURCE_FILES_TEST
     src/trie.h
     src/trie.c
     src/phone_forward.h
     src/phone_forward.c
-    src/phone_forward_tests.c)
+    src/phone_forward_tests.c src/linkedList.c src/linkedList.h)
 
 # Wskazujemy plik wykonywalny.
 add_executable(phone_forward ${SOURCE_FILES})
