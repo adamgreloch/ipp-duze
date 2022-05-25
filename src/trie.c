@@ -34,7 +34,7 @@ struct TrieNode {
                             się w @p list pewnego węzła. */
 };
 
-TrieNode *trieNodeNew(TrieNode *parent) {
+TrieNode *trieNodeNew(TrieNode *parent, bool hasList) {
     TrieNode *node = malloc(sizeof(TrieNode));
     if (!node) return NULL;
 
@@ -45,8 +45,7 @@ TrieNode *trieNodeNew(TrieNode *parent) {
     node->lastVisited = -1;
 
     node->value.seq = NULL;
-    node->value.list = NULL;
-    node->hasList = false;
+    node->hasList = hasList;
 
     node->seqPtr = NULL;
 
@@ -114,7 +113,9 @@ void trieDelete(TrieNode *node) {
 }
 
 bool trieAddToList(TrieNode **rootPtr, const char *str, char *value) {
-    TrieNode *nodeOfStr = trieInsertStr(rootPtr, str);
+    if (!(*rootPtr)->hasList) return false;
+
+    TrieNode *nodeOfStr = trieInsertStr(rootPtr, str, true);
 
     if (!nodeOfStr->value.list)
         nodeOfStr->value.list = listInit();
@@ -167,8 +168,8 @@ TrieNode *trieFindSeq(TrieNode *root, const char *str, size_t *length) {
     return lastWithValue;
 }
 
-TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
-    if (!(*rootPtr)) *rootPtr = trieNodeNew(NULL);
+TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList) {
+    if (!(*rootPtr)) *rootPtr = trieNodeNew(NULL, hasList);
     if (!(*rootPtr)) return NULL;
 
     int idx;
@@ -177,7 +178,7 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str) {
     for (size_t i = 0; str[i] != '\0'; i++) {
         idx = getIndex(str[i]);
         if (!v->children[idx]) {
-            v->children[idx] = trieNodeNew(v);
+            v->children[idx] = trieNodeNew(v, hasList);
             if (!v->children[idx]) return NULL;
             v->isTerminal = false;
             /* Nastąpiła zmiana struktury drzewa, więc resetujemy jeszcze stan

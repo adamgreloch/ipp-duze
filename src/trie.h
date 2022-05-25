@@ -33,8 +33,8 @@ typedef struct TrieNode TrieNode; /**< @struct TrieNode */
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * alokować pamięci.
  */
-// TODO zaaktualizować dokumentację
-TrieNode *trieNodeNew(TrieNode *parent);
+// TODO doc-update
+TrieNode *trieNodeNew(TrieNode *parent, bool hasList);
 
 /** @brief Usuwa drzewo zakorzenione w @p node.
  * Usuwa drzewo trie zakorzenione w węźle @p node. Zwalnia jego pamięć.
@@ -51,7 +51,7 @@ void trieDelete(TrieNode *node);
  * @return Wartość @p true, jeśli wartość została ustawiona. Wartość @p
  * false, jeśli @p node ma wartość NULL, bądź nie udało się alokować pamięci.
  */
-// TODO zaaktualizować dokumentację
+// TODO doc-update
 bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length);
 
 List *trieNodeGetList(TrieNode *node);
@@ -60,7 +60,7 @@ List *trieNodeGetList(TrieNode *node);
  * @param[in] node - wskaźnik na oglądany węzeł.
  * @return Wartość w @p node, bądź NULL, jeśli @p node ma wartość NULL.
  */
-// TODO zaaktualizować dokumentację
+// TODO doc-update
 const char *trieNodeGetSeq(TrieNode *node);
 
 /** @brief Znajduje najdłuższy prefiks @p str o niepustej wartości w drzewie.
@@ -83,7 +83,8 @@ TrieNode *trieFindSeq(TrieNode *root, const char *str, size_t *length);
  * @return Wskaźnik na węzeł kończący ciąg lub NULL, gdy nie udało się
  * alokować pamięci.
  */
-TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str);
+// TODO doc-update
+TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList);
 
 /** @brief Usuwa wszystkie ciągi z drzewa, których prefiksem jest @p str.
  * Usuwa wszystkie ciągi z drzewa zakorzenionego w @p *rootPtr, których
