@@ -91,14 +91,16 @@ void phfwdDelete(PhoneForward *pf) {
 
 bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (!pf) return false;
-    size_t length;
-    if (!isNumber(num1) || !(length = isNumber(num2))) return false;
+    size_t len1, len2;
+    if (!(len1 = isNumber(num1)) || !(len2 = isNumber(num2))) return false;
     if (strcmp(num1, num2) == 0) return false;
 
-    TrieNode *v = trieInsertStr(&(pf->fwds), num1, false);
+    TrieNode *fwd = trieInsertStr(&(pf->fwds), num1, false);
+    TrieNode *rev = trieInsertStr(&(pf->revs), num2, true);
+    if (!fwd || !rev) return false; // TODO czy zwalniać pamięć?
 
-    if (!v) return false;
-    return trieNodeSetSeq(v, num2, length);
+    return trieNodeSetSeq(fwd, num2, len2) && trieNodeBind(fwd, trieAddToList
+    (rev, num1, len1));
 }
 
 void phfwdRemove(PhoneForward *pf, char const *num) {

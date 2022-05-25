@@ -29,7 +29,7 @@ List *listInit();
 
 bool isEmpty(List *l);
 
-bool listAdd(List *l, char *str);
+ListNode *listAdd(List *l, char const *str, size_t length);
 
 char *listPoll(List *l);
 

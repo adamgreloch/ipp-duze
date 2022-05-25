@@ -7,6 +7,7 @@
  * @date 2022
  */
 
+#include <string.h>
 #include "linkedList.h"
 
 struct ListNode {
@@ -32,24 +33,31 @@ List *listInit() {
     return l;
 }
 
-bool listAdd(List *l, char *str) {
+ListNode *listAdd(List *l, char const *str, size_t length) {
+    char *res = malloc((length + 1) * sizeof(char));
+    if (!res) return NULL;
+
+    strcpy(res, str);
+
     if (!l->elem->str) {
-        l->elem->str = str;
-        return true;
+        l->elem->str = res;
+        return l->elem;
     }
 
     ListNode *n = malloc(sizeof(ListNode));
-    if (!n) return false;
-    n->str = str;
+    if (!n) {
+        free(res);
+        return NULL;
+    }
 
-    ListNode *e = l->elem;
+    n->str = res;
 
-    e->prev->next = n;
-    n->prev = e->prev;
+    l->elem->prev->next = n;
+    n->prev = l->elem->prev;
     n->next = NULL;
-    e->prev = n;
+    l->elem->prev = n;
 
-    return true;
+    return n;
 }
 
 char *listPoll(List *l) {
@@ -66,13 +74,14 @@ void removeListNode(ListNode *node) {
     free(node);
 
     prev->next = next;
-    next->prev = prev;
+    if (next) next->prev = prev;
 }
 
 void listDelete(List *l) {
     if (!l) return;
     ListNode *curr = l->elem;
     while (curr->next) {
+        // TODO coś się nie NULL-uje jak powinno
         free(curr->str);
         curr = curr->next;
         free(curr->prev);

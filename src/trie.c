@@ -30,8 +30,9 @@ struct TrieNode {
     int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
                           dziecka. Resetowany do -1 przy zmianie
                           struktury poddrzew. */
-    ListNode **seqPtr; /**< Wskaźnik na poprawny ciąg znaków, znajdujący
-                            się w @p list pewnego węzła. */
+    ListNode *bound; /**< Wskaźnik na element listy, znajdujący
+                          się w @p list pewnego węzła, zawierający ciąg
+                          znaków, który reprezentuje ten węzeł. */
 };
 
 TrieNode *trieNodeNew(TrieNode *parent, bool hasList) {
@@ -47,7 +48,7 @@ TrieNode *trieNodeNew(TrieNode *parent, bool hasList) {
     node->value.seq = NULL;
     node->hasList = hasList;
 
-    node->seqPtr = NULL;
+    node->bound = NULL;
 
     return node;
 }
@@ -68,10 +69,12 @@ static int getIndex(char c) {
  * @param node - wskaźnik na węzeł.
  */
 static void freeTrieNode(TrieNode *node) {
-    if (node->seqPtr)
-        removeListNode(*(node->seqPtr));
+    removeListNode(node->bound);
 
-    if (node->hasList) listDelete(node->value.list);
+    if (node->hasList) {
+        listDelete(node->value.list);
+        node->value.list = NULL;
+    }
     else free(node->value.seq);
 
     free(node);
@@ -112,15 +115,18 @@ void trieDelete(TrieNode *node) {
         }
 }
 
-bool trieAddToList(TrieNode **rootPtr, const char *str, char *value) {
-    if (!(*rootPtr)->hasList) return false;
+ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
+    if (!node->hasList) return NULL;
 
-    TrieNode *nodeOfStr = trieInsertStr(rootPtr, str, true);
+    if (!node->value.list)
+        if (!(node->value.list = listInit())) return NULL;
 
-    if (!nodeOfStr->value.list)
-        nodeOfStr->value.list = listInit();
+    return listAdd(node->value.list, value, length);
+}
 
-    listAdd(nodeOfStr->value.list, value);
+bool trieNodeBind(TrieNode *trieNode, ListNode *listNode) {
+    if (!listNode || !trieNode || trieNode->hasList) return false;
+    trieNode->bound = listNode;
     return true;
 }
 

@@ -94,6 +94,8 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList);
  */
 void trieRemoveStr(TrieNode **rootPtr, const char *str);
 
-bool trieAddToList(TrieNode **rootPtr, const char *str, char *value);
+ListNode *trieAddToList(TrieNode *node, const char *value, size_t length);
+
+bool trieNodeBind(TrieNode *trieNode, ListNode *listNode);
 
 #endif /* __TRIE_H__ */
