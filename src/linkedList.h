@@ -19,19 +19,19 @@ struct ListNode;
 
 typedef struct ListNode ListNode;
 
-struct List {
-    ListNode* elem;
-};
+struct List;
 
 typedef struct List List;
 
-List *listInit();
+List * listInit(char const *str, size_t length);
 
-bool isEmpty(List *l);
+bool isEmpty(ListNode *l);
 
 ListNode *listAdd(List *l, char const *str, size_t length);
 
 char *listPoll(List *l);
+
+ListNode *listPollNode(List *l);
 
 void removeListNode(ListNode *node);
 

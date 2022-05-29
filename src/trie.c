@@ -75,7 +75,10 @@ static void freeTrieNode(TrieNode *node) {
         listDelete(node->value.list);
         node->value.list = NULL;
     }
-    else free(node->value.seq);
+    else {
+        free(node->value.seq);
+        node->value.seq = NULL;
+    }
 
     free(node);
 }
@@ -118,8 +121,10 @@ void trieDelete(TrieNode *node) {
 ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
     if (!node->hasList) return NULL;
 
-    if (!node->value.list)
-        if (!(node->value.list = listInit())) return NULL;
+    if (!node->value.list) {
+        if (!(node->value.list = listInit(value, length))) return NULL;
+        else return listPollNode(node->value.list);
+    }
 
     return listAdd(node->value.list, value, length);
 }

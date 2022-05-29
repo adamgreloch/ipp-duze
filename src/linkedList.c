@@ -12,79 +12,83 @@
 
 struct ListNode {
     char *str; /**< Poprawny ciąg znaków. */
-    struct ListNode *prev;
-    struct ListNode *next;
+    ListNode *prev;
+    ListNode *next;
 };
 
-List *listInit() {
+struct List {
+    ListNode *head;
+};
+
+List * listInit(char const *str, size_t length) {
     List *l = malloc(sizeof(List));
     if (!l) return NULL;
-    l->elem = malloc(sizeof(ListNode));
 
-    if (!l->elem) {
+    l->head = malloc(sizeof(ListNode));
+    if (!l->head) {
         free(l);
         return NULL;
     }
 
-    l->elem->str = NULL;
-    l->elem->prev = l->elem;
-    l->elem->next = NULL;
+    l->head->str = malloc((length + 1) * sizeof(char));
+    if (!l->head->str) return NULL;
+    strcpy(l->head->str, str);
+
+    l->head->prev = l->head;
+    l->head->next = l->head;
 
     return l;
 }
 
 ListNode *listAdd(List *l, char const *str, size_t length) {
-    char *res = malloc((length + 1) * sizeof(char));
-    if (!res) return NULL;
-
-    strcpy(res, str);
-
-    if (!l->elem->str) {
-        l->elem->str = res;
-        return l->elem;
-    }
-
     ListNode *n = malloc(sizeof(ListNode));
-    if (!n) {
-        free(res);
-        return NULL;
-    }
+    if (!n) return NULL;
 
-    n->str = res;
+    n->str = malloc((length + 1) * sizeof(char));
+    if (!n->str) return NULL;
 
-    l->elem->prev->next = n;
-    n->prev = l->elem->prev;
-    n->next = NULL;
-    l->elem->prev = n;
+    strcpy(n->str, str);
+
+    n->prev = NULL;
+    n->next = l->head;
+    l->head->prev = n;
+    l->head = n;
 
     return n;
 }
 
+ListNode *listPollNode(List *l) {
+    if (!l->head->prev) return l->head->prev;
+    return NULL;
+}
+
 char *listPoll(List *l) {
-    if (!l->elem->prev) return l->elem->prev->str;
+    if (!l->head->prev) return l->head->prev->str;
     return NULL;
 }
 
 void removeListNode(ListNode *node) {
     if (!node) return;
+
     ListNode *prev = node->prev;
     ListNode *next = node->next;
 
     free(node->str);
     free(node);
 
-    prev->next = next;
+    if (prev) prev->next = next;
     if (next) next->prev = prev;
 }
 
 void listDelete(List *l) {
     if (!l) return;
-    ListNode *curr = l->elem;
-    while (curr->next) {
-        // TODO coś się nie NULL-uje jak powinno
+    ListNode *curr = l->head;
+    ListNode *next;
+    while (curr) {
+        next = curr->next;
+        if (!next) next = curr->prev;
         free(curr->str);
-        curr = curr->next;
-        free(curr->prev);
+        free(curr);
+        curr = next;
     }
-    free(l);
 }
