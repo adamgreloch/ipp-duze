@@ -25,13 +25,13 @@ typedef struct List List;
 
 List * listInit(char const *str, size_t length);
 
-bool isEmpty(ListNode *l);
+bool isEmpty(List *l);
 
 ListNode *listAdd(List *l, char const *str, size_t length);
 
-char *listPoll(List *l);
+char *listPeek(List *l);
 
-ListNode *listPollNode(List *l);
+ListNode *listPeekNode(List *l);
 
 void removeListNode(ListNode *node);
 

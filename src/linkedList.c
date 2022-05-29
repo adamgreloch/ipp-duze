@@ -14,10 +14,12 @@ struct ListNode {
     char *str; /**< Poprawny ciąg znaków. */
     ListNode *prev;
     ListNode *next;
+    List *parent;
 };
 
 struct List {
     ListNode *head;
+    size_t count;
 };
 
 List * listInit(char const *str, size_t length) {
@@ -31,11 +33,17 @@ List * listInit(char const *str, size_t length) {
     }
 
     l->head->str = malloc((length + 1) * sizeof(char));
-    if (!l->head->str) return NULL;
+    if (!l->head->str) {
+        free(l->head);
+        free(l);
+        return NULL;
+    }
     strcpy(l->head->str, str);
 
     l->head->prev = l->head;
     l->head->next = l->head;
+    l->count = 1;
+    l->head->parent = l;
 
     return l;
 }
@@ -45,50 +53,68 @@ ListNode *listAdd(List *l, char const *str, size_t length) {
     if (!n) return NULL;
 
     n->str = malloc((length + 1) * sizeof(char));
-    if (!n->str) return NULL;
+    if (!n->str) {
+        free(n);
+        return NULL;
+    }
 
     strcpy(n->str, str);
 
     n->prev = NULL;
     n->next = l->head;
+    n->parent = l;
     l->head->prev = n;
     l->head = n;
+    l->count++;
 
     return n;
 }
 
-ListNode *listPollNode(List *l) {
-    if (!l->head->prev) return l->head->prev;
-    return NULL;
+ListNode *listPeekNode(List *l) {
+    return l->head;
 }
 
-char *listPoll(List *l) {
-    if (!l->head->prev) return l->head->prev->str;
+char *listPeek(List *l) {
+    if (!l->head) return l->head->str;
     return NULL;
 }
 
 void removeListNode(ListNode *node) {
     if (!node) return;
 
+    if (isEmpty(node->parent))
+        listDelete(node->parent);
+
     ListNode *prev = node->prev;
     ListNode *next = node->next;
 
-    free(node->str);
-    free(node);
-
     if (prev) prev->next = next;
     if (next) next->prev = prev;
+
+    node->parent->count--;
+    free(node->str);
+    free(node);
 }
 
 void listDelete(List *l) {
     if (!l) return;
+    if (isEmpty(l)) {
+        free(l);
+        return;
+    }
+
     ListNode *curr = l->head;
     ListNode *next;
-    while (curr) {
+    while (!isEmpty(l)) {
         next = curr->next;
-        if (!next) next = curr->prev;
+        curr->parent->count--;
         free(curr->str);
         free(curr);
         curr = next;
     }
+    free(l);
+}
+
+bool isEmpty(List *l) {
+    return l->count == 0;
 }

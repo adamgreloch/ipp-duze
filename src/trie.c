@@ -123,7 +123,7 @@ ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
 
     if (!node->value.list) {
         if (!(node->value.list = listInit(value, length))) return NULL;
-        else return listPollNode(node->value.list);
+        else return listPeekNode(node->value.list);
     }
 
     return listAdd(node->value.list, value, length);
