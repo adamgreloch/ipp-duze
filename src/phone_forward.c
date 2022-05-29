@@ -71,11 +71,11 @@ PhoneForward *phfwdNew(void) {
     PhoneForward *pf = malloc(sizeof(PhoneForward));
     if (!pf) return NULL;
 
-    pf->fwds = trieNodeNew(NULL, false);
-    pf->revs = trieNodeNew(NULL, true);
+    pf->fwds = trieNodeNew(NULL, false, &pf->fwds);
+    pf->revs = NULL;
 
-    if (!pf->fwds || !pf->revs) {
-        phfwdDelete(pf);
+    if (!pf->fwds) {
+        free(pf);
         return NULL;
     }
 
@@ -85,7 +85,7 @@ PhoneForward *phfwdNew(void) {
 void phfwdDelete(PhoneForward *pf) {
     if (!pf) return;
     trieDelete(pf->fwds);
-    trieDelete(pf->revs);
+    //trieDelete(pf->revs);
     free(pf);
 }
 
@@ -95,12 +95,18 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (!(len1 = isNumber(num1)) || !(len2 = isNumber(num2))) return false;
     if (strcmp(num1, num2) == 0) return false;
 
+    if (!pf->revs)
+        pf->revs = trieNodeNew(NULL, true, &pf->revs);
+
+    if (!pf->revs) return false;
+
     TrieNode *fwd = trieInsertStr(&(pf->fwds), num1, false);
     TrieNode *rev = trieInsertStr(&(pf->revs), num2, true);
-    if (!fwd || !rev) return false; // TODO czy zwalniać pamięć?
 
-    return trieNodeSetSeq(fwd, num2, len2) && trieNodeBind(fwd, trieAddToList
-    (rev, num1, len1));
+    if (!fwd || !rev) return false;
+
+    return trieNodeSetSeq(fwd, num2, len2) &&
+           trieNodeBind(fwd, trieAddToList(rev, num1, len1));
 }
 
 void phfwdRemove(PhoneForward *pf, char const *num) {
@@ -194,6 +200,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     return numbers;
 }
 
+// TODO doc-update: na podstawie forum
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     if (!pf || !num) return NULL;
     return NULL;

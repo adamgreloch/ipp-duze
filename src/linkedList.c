@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include "linkedList.h"
+#include "trie.h"
 
 struct ListNode {
     char *str; /**< Poprawny ciąg znaków. */
@@ -19,10 +20,11 @@ struct ListNode {
 
 struct List {
     ListNode *head;
+    TrieNode *owner;
     size_t count;
 };
 
-List * listInit(char const *str, size_t length) {
+List * listInit(char const *str, size_t length, TrieNode *owner) {
     List *l = malloc(sizeof(List));
     if (!l) return NULL;
 
@@ -44,11 +46,14 @@ List * listInit(char const *str, size_t length) {
     l->head->next = l->head;
     l->count = 1;
     l->head->parent = l;
+    l->owner = owner;
 
     return l;
 }
 
 ListNode *listAdd(List *l, char const *str, size_t length) {
+    if (!l) return NULL;
+
     ListNode *n = malloc(sizeof(ListNode));
     if (!n) return NULL;
 
@@ -82,9 +87,6 @@ char *listPeek(List *l) {
 void removeListNode(ListNode *node) {
     if (!node) return;
 
-    if (isEmpty(node->parent))
-        listDelete(node->parent);
-
     ListNode *prev = node->prev;
     ListNode *next = node->next;
 
@@ -92,6 +94,10 @@ void removeListNode(ListNode *node) {
     if (next) next->prev = prev;
 
     node->parent->count--;
+
+    if (isEmpty(node->parent))
+        trieCutLeafs(node->parent->owner);
+
     free(node->str);
     free(node);
 }
@@ -116,5 +122,5 @@ void listDelete(List *l) {
 }
 
 bool isEmpty(List *l) {
-    return l->count == 0;
+    return !l || l->count == 0;
 }

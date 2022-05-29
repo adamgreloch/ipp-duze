@@ -14,16 +14,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "structs.h"
 
-struct ListNode;
-
-typedef struct ListNode ListNode;
-
-struct List;
-
-typedef struct List List;
-
-List * listInit(char const *str, size_t length);
+List * listInit(char const *str, size_t length, TrieNode *owner);
 
 bool isEmpty(List *l);
 

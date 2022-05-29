@@ -13,8 +13,7 @@
 struct TrieNode {
     struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
     struct TrieNode *children[ALLNUM]; /**< Tablica wskaźników na dzieci węzła. */
-    bool isTerminal; /**< Wartość logiczna przyjmująca TRUE, jeśli węzeł
-                          jest liściem, FALSE w przeciwnym wypadku. */
+    size_t count;
     /**
      * Wartość węzła, która, jeśli niepusta (ma wartość inną niż NULL), to jest
      * poprawnym ciągiem znaków lub listą poprawnych ciągów znaków.
@@ -33,22 +32,24 @@ struct TrieNode {
     ListNode *bound; /**< Wskaźnik na element listy, znajdujący
                           się w @p list pewnego węzła, zawierający ciąg
                           znaków, który reprezentuje ten węzeł. */
+    TrieNode **pointedBy;
 };
 
-TrieNode *trieNodeNew(TrieNode *parent, bool hasList) {
+TrieNode *trieNodeNew(TrieNode *parent, bool hasList, TrieNode **pointedBy) {
     TrieNode *node = malloc(sizeof(TrieNode));
     if (!node) return NULL;
 
     node->parent = parent;
     for (int idx = 0; idx < ALLNUM; idx++)
         node->children[idx] = NULL;
-    node->isTerminal = true;
+    node->count = 0;
     node->lastVisited = -1;
 
     node->value.seq = NULL;
     node->hasList = hasList;
 
     node->bound = NULL;
+    node->pointedBy = pointedBy;
 
     return node;
 }
@@ -69,15 +70,13 @@ static int getIndex(char c) {
  * @param node - wskaźnik na węzeł.
  */
 static void freeTrieNode(TrieNode *node) {
-    removeListNode(node->bound);
-
     if (node->hasList) {
         listDelete(node->value.list);
         node->value.list = NULL;
     }
     else {
+        removeListNode(node->bound);
         free(node->value.seq);
-        node->value.seq = NULL;
     }
 
     free(node);
@@ -91,7 +90,7 @@ void trieDelete(TrieNode *node) {
     TrieNode *curr = node;
 
     while (curr)
-        if (curr->isTerminal || curr->lastVisited == ALLNUM - 1) {
+        if (curr->count == 0) {
             /* Jeśli napotkany węzeł nie ma dzieci, to zwalniamy go. */
             if (curr == node) {
                 freeTrieNode(curr);
@@ -103,6 +102,7 @@ void trieDelete(TrieNode *node) {
                 /* Przekazany do zwolnienia curr był dzieckiem nowego curr.
                  * Musimy więc usunąć skojarzenie między nimi. */
                 curr->children[curr->lastVisited] = NULL;
+                curr->count--;
                 freeTrieNode(toFree);
             }
         }
@@ -122,7 +122,7 @@ ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
     if (!node->hasList) return NULL;
 
     if (!node->value.list) {
-        if (!(node->value.list = listInit(value, length))) return NULL;
+        if (!(node->value.list = listInit(value, length, node))) return NULL;
         else return listPeekNode(node->value.list);
     }
 
@@ -180,7 +180,7 @@ TrieNode *trieFindSeq(TrieNode *root, const char *str, size_t *length) {
 }
 
 TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList) {
-    if (!(*rootPtr)) *rootPtr = trieNodeNew(NULL, hasList);
+    if (!(*rootPtr)) *rootPtr = trieNodeNew(NULL, hasList, rootPtr);
     if (!(*rootPtr)) return NULL;
 
     int idx;
@@ -189,9 +189,9 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList) {
     for (size_t i = 0; str[i] != '\0'; i++) {
         idx = getIndex(str[i]);
         if (!v->children[idx]) {
-            v->children[idx] = trieNodeNew(v, hasList);
+            v->children[idx] = trieNodeNew(v, hasList, &v->children[idx]);
             if (!v->children[idx]) return NULL;
-            v->isTerminal = false;
+            v->count++;
             /* Nastąpiła zmiana struktury drzewa, więc resetujemy jeszcze stan
              * odwiedzenia tego węzła: */
             v->lastVisited = -1;
@@ -213,9 +213,25 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
                 v = v->children[idx];
         }
         if (mayExist) {
-            v->parent->children[idx] = NULL;
+            *v->pointedBy = NULL;
+            v->parent->count--;
             trieDelete(v);
-            v = NULL;
         }
+    }
+}
+
+void trieCutLeafs(TrieNode *node) {
+    if (!node || !node->hasList) return;
+
+    TrieNode *curr = node, *next;
+    while (curr && isEmpty(curr->value.list) && curr->count == 0) {
+        listDelete(curr->value.list);
+        if (curr->parent) {
+            *curr->pointedBy = NULL;
+            curr->parent->count--;
+        }
+        next = curr->parent;
+        free(curr);
+        curr = next;
     }
 }

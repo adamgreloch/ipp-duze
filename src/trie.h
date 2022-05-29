@@ -13,17 +13,11 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "structs.h"
 #include "linkedList.h"
 
 #define ALLNUM 12 /**< Rozmiar alfabetu w drzewie,
                        czyli moc zbioru \f$\Omega\f$. */
-
-/**
- * Struktura przechowująca węzeł drzewa trie.
- */
-struct TrieNode;
-
-typedef struct TrieNode TrieNode; /**< @struct TrieNode */
 
 /** @brief Tworzy nowy węzeł.
  * Tworzy nowy węzeł @p TrieNode o pustej wartości. Ustawia jego wskaźnik
@@ -34,7 +28,7 @@ typedef struct TrieNode TrieNode; /**< @struct TrieNode */
  * alokować pamięci.
  */
 // TODO doc-update
-TrieNode *trieNodeNew(TrieNode *parent, bool hasList);
+TrieNode *trieNodeNew(TrieNode *parent, bool hasList, TrieNode **pointedBy);
 
 /** @brief Usuwa drzewo zakorzenione w @p node.
  * Usuwa drzewo trie zakorzenione w węźle @p node. Zwalnia jego pamięć.
@@ -97,5 +91,7 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str);
 ListNode *trieAddToList(TrieNode *node, const char *value, size_t length);
 
 bool trieNodeBind(TrieNode *trieNode, ListNode *listNode);
+
+void trieCutLeafs(TrieNode *node);
 
 #endif /* __TRIE_H__ */
