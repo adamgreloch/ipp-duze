@@ -154,8 +154,6 @@ static int wrong_arguments(void) {
   F(phfwdAdd(pf, "123", ";"));
   F(phfwdAdd(pf, "123", ">"));
   F(phfwdAdd(pf, "123", "0?"));
-  F(phfwdAdd(pf, "123", "*"));
-  F(phfwdAdd(pf, "123", "#"));
   F(phfwdAdd(pf, "", "123"));
   F(phfwdAdd(pf, "c", "123"));
   F(phfwdAdd(pf, " ", "123"));
@@ -166,8 +164,6 @@ static int wrong_arguments(void) {
   F(phfwdAdd(pf, "1>", "123"));
   F(phfwdAdd(pf, "?", "123"));
   F(phfwdAdd(pf, "@", "123"));
-  F(phfwdAdd(pf, "*", "123"));
-  F(phfwdAdd(pf, "#", "123"));
   F(phfwdAdd(pf, "0", "0"));
 
   E(phfwdGet(pf, ""));
@@ -197,8 +193,6 @@ static int wrong_arguments(void) {
   phfwdRemove(pf, ";");
   phfwdRemove(pf, ">");
   phfwdRemove(pf, "@");
-  phfwdRemove(pf, "*");
-  phfwdRemove(pf, "#");
 
   CLEAN(pf);
 }
