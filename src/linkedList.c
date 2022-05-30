@@ -25,6 +25,8 @@ struct List {
 };
 
 List * listInit(char const *str, size_t length, TrieNode *owner) {
+    if (!owner) return NULL;
+
     List *l = malloc(sizeof(List));
     if (!l) return NULL;
 
@@ -65,11 +67,10 @@ ListNode *listAdd(List *l, char const *str, size_t length) {
 
     strcpy(n->str, str);
 
-    n->prev = NULL;
+    n->prev = l->head->prev;
     n->next = l->head;
     n->parent = l;
     l->head->prev = n;
-    l->head = n;
     l->count++;
 
     return n;
@@ -87,19 +88,21 @@ char *listPeek(List *l) {
 void removeListNode(ListNode *node) {
     if (!node) return;
 
+    List *parent = node->parent;
     ListNode *prev = node->prev;
     ListNode *next = node->next;
 
     if (prev) prev->next = next;
     if (next) next->prev = prev;
 
-    node->parent->count--;
-
-    if (isEmpty(node->parent))
-        trieCutLeafs(node->parent->owner);
-
     free(node->str);
     free(node);
+
+    parent->count--;
+    if (isEmpty(parent)) {
+        parent->head = NULL;
+        trieCutLeafs(parent->owner);
+    }
 }
 
 void listDelete(List *l) {
@@ -122,5 +125,5 @@ void listDelete(List *l) {
 }
 
 bool isEmpty(List *l) {
-    return !l || l->count == 0;
+    return l->count == 0;
 }

@@ -85,7 +85,7 @@ PhoneForward *phfwdNew(void) {
 void phfwdDelete(PhoneForward *pf) {
     if (!pf) return;
     trieDelete(pf->fwds);
-    //trieDelete(pf->revs);
+    trieDelete(pf->revs);
     free(pf);
 }
 

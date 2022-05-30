@@ -198,13 +198,14 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList) {
         }
         v = v->children[idx];
     }
+    // FIXME zwraca garbage
     return v;
 }
 
 void trieRemoveStr(TrieNode **rootPtr, const char *str) {
     if (*rootPtr) {
         TrieNode *v = *rootPtr;
-        int idx = 0;
+        int idx;
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
             idx = getIndex(str[i]);
@@ -224,11 +225,12 @@ void trieCutLeafs(TrieNode *node) {
     if (!node || !node->hasList) return;
 
     TrieNode *curr = node, *next;
-    while (curr && isEmpty(curr->value.list) && curr->count == 0) {
+    while (curr && (!curr->value.list || isEmpty(curr->value.list)) && curr->count == 0) {
         listDelete(curr->value.list);
+        *curr->pointedBy = NULL;
         if (curr->parent) {
-            *curr->pointedBy = NULL;
             curr->parent->count--;
+            curr->parent->lastVisited = -1;
         }
         next = curr->parent;
         free(curr);
