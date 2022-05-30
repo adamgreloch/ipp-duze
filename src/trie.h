@@ -92,6 +92,6 @@ ListNode *trieAddToList(TrieNode *node, const char *value, size_t length);
 
 bool trieNodeBind(TrieNode *trieNode, ListNode *listNode);
 
-void trieCutLeafs(TrieNode *node);
+void trieCutLeaves(TrieNode *node);
 
 #endif /* __TRIE_H__ */

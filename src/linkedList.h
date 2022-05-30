@@ -24,9 +24,11 @@ ListNode *listAdd(List *l, char const *str, size_t length);
 
 char *listPeek(List *l);
 
-ListNode *listPeekNode(List *l);
+ListNode *listNodePeek(List *l);
 
-void removeListNode(ListNode *node);
+void listNodeRemove(ListNode *node);
+
+void listNodeRemoveAndCut(ListNode *node);
 
 void listDelete(List *l);
 

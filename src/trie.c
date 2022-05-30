@@ -75,7 +75,7 @@ static void freeTrieNode(TrieNode *node) {
         node->value.list = NULL;
     }
     else {
-        removeListNode(node->bound);
+        listNodeRemoveAndCut(node->bound);
         free(node->value.seq);
     }
 
@@ -123,7 +123,7 @@ ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
 
     if (!node->value.list) {
         if (!(node->value.list = listInit(value, length, node))) return NULL;
-        else return listPeekNode(node->value.list);
+        else return listNodePeek(node->value.list);
     }
 
     return listAdd(node->value.list, value, length);
@@ -221,7 +221,7 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
     }
 }
 
-void trieCutLeafs(TrieNode *node) {
+void trieCutLeaves(TrieNode *node) {
     if (!node || !node->hasList) return;
 
     TrieNode *curr = node, *next;

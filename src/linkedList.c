@@ -21,7 +21,6 @@ struct ListNode {
 struct List {
     ListNode *head;
     TrieNode *owner;
-    size_t count;
 };
 
 List * listInit(char const *str, size_t length, TrieNode *owner) {
@@ -44,9 +43,8 @@ List * listInit(char const *str, size_t length, TrieNode *owner) {
     }
     strcpy(l->head->str, str);
 
-    l->head->prev = l->head;
-    l->head->next = l->head;
-    l->count = 1;
+    l->head->prev = NULL;
+    l->head->next = NULL;
     l->head->parent = l;
     l->owner = owner;
 
@@ -67,16 +65,17 @@ ListNode *listAdd(List *l, char const *str, size_t length) {
 
     strcpy(n->str, str);
 
-    n->prev = l->head->prev;
-    n->next = l->head;
     n->parent = l;
-    l->head->prev = n;
-    l->count++;
+    n->prev = NULL;
+    n->next = l->head;
+
+    if (l->head) l->head->prev = n;
+    l->head = n;
 
     return n;
 }
 
-ListNode *listPeekNode(List *l) {
+ListNode *listNodePeek(List *l) {
     return l->head;
 }
 
@@ -85,45 +84,45 @@ char *listPeek(List *l) {
     return NULL;
 }
 
-void removeListNode(ListNode *node) {
-    if (!node) return;
+void listNodeRemove(ListNode *node) {
+    if (!node || !node->parent) return;
 
     List *parent = node->parent;
-    ListNode *prev = node->prev;
-    ListNode *next = node->next;
 
-    if (prev) prev->next = next;
-    if (next) next->prev = prev;
+    if (node == parent->head)
+        parent->head = node->next;
+
+    if (node->next)
+        node->next->prev = node->prev;
+
+    if (node->prev)
+        node->prev->next = node->next;
 
     free(node->str);
     free(node);
+}
 
-    parent->count--;
+void listNodeRemoveAndCut(ListNode *node) {
+    if (!node) return;
+    List *parent = node->parent;
+    listNodeRemove(node);
     if (isEmpty(parent)) {
-        parent->head = NULL;
-        trieCutLeafs(parent->owner);
+        trieCutLeaves(parent->owner);
     }
 }
 
 void listDelete(List *l) {
     if (!l) return;
-    if (isEmpty(l)) {
-        free(l);
-        return;
-    }
-
     ListNode *curr = l->head;
     ListNode *next;
-    while (!isEmpty(l)) {
+    while (curr) {
         next = curr->next;
-        curr->parent->count--;
-        free(curr->str);
-        free(curr);
+        listNodeRemove(curr);
         curr = next;
     }
     free(l);
 }
 
 bool isEmpty(List *l) {
-    return l->count == 0;
+    return !l->head;
 }
