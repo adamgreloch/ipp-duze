@@ -119,7 +119,6 @@ char **listToArray(List *l, size_t *arraySize) {
     size_t i = 0;
     while (curr) {
         res[i] = curr->str;
-        printf("from list %s\n", res[i]);
         curr = curr->next;
         i++;
     }

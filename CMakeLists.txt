@@ -21,27 +21,21 @@ set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 # Wskazujemy pliki źródłowe.
 set(SOURCE_FILES
-    src/trie.h
-    src/trie.c
-    src/phone_forward.h
-    src/phone_forward.c
+    src/trie.h src/trie.c
+    src/phone_forward.h src/phone_forward.c
     src/phone_forward_example.c
-    src/linked_list.c
-    src/linked_list.h
+    src/linked_list.h src/linked_list.c
     src/structs.h
-    src/alphabet.c
-    src/alphabet.h)
+    src/alphabet.h src/alphabet.c
+    src/dynamic_table.h src/dynamic_table.c)
 set(SOURCE_FILES_TEST
-    src/trie.h
-    src/trie.c
-    src/phone_forward.h
-    src/phone_forward.c
+    src/trie.h src/trie.c
+    src/phone_forward.h src/phone_forward.c
     src/phone_forward_tests.c
-    src/linked_list.c
-    src/linked_list.h
+    src/linked_list.h src/linked_list.c
     src/structs.h
-    src/alphabet.c
-    src/alphabet.h)
+    src/alphabet.h src/alphabet.c
+    src/dynamic_table.h src/dynamic_table.c)
 
 # Wskazujemy plik wykonywalny.
 add_executable(phone_forward ${SOURCE_FILES})
