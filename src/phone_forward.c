@@ -133,6 +133,24 @@ static PhoneNumbers *pnumNew() {
     return numbers;
 }
 
+static bool pnumPut(PhoneNumbers *pnum, const char *num) {
+    if (pnum->amount == pnum->size) {
+        pnum->size *= 2;
+        char **backup = pnum->nums;
+        pnum->nums = realloc(pnum->nums, pnum->size * sizeof(char*));
+        if (!pnum->nums) {
+            pnum->nums = backup;
+            return false;
+        }
+    }
+
+    pnum->nums[pnum->amount] = malloc((strlen(num) + 1) * sizeof(char));
+    strcpy(pnum->nums[pnum->amount], num);
+    pnum->amount++;
+
+    return true;
+}
+
 /**
  * @brief Zmienia prefiks podanego numeru na nowy.
  * Alokuje tablicę znaków o długości nowego numeru. Wstawia do niej nowy
@@ -198,10 +216,54 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     return numbers;
 }
 
+static int numCompare(const void *a, const void * b) {
+    char *num1 = *(char **) a;
+    char *num2 = *(char **) b;
+    size_t pos = 0;
+
+    while (true)
+        if (num1[pos] == '\0' && num2[pos] == '\0')
+            return 0;
+        else if (num1[pos] == '\0')
+            return 1;
+        else if (num2[pos] == '\0')
+            return -1;
+        else if (num1[pos] == num2[pos])
+            pos++;
+        else
+            return num1[pos] - num2[pos];
+}
+
 // TODO doc-update: na podstawie forum
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
-    if (!pf || !num) return NULL;
-    return NULL;
+    size_t length, toReplace = 0;
+    if (!pf || !(length = isNumber(num))) return NULL;
+    size_t size;
+
+    PhoneNumbers *pnum = pnumNew();
+
+    char** arr = listToArray(trieFindList(pf->revs, num, &toReplace), &size);
+    if (!arr) {
+        pnumPut(pnum, num);
+        return pnum;
+    }
+
+    arr[size - 1] = (char*) num;
+
+    for (size_t i = 0; i < size - 1; i++)
+        arr[i] = replacePnumPrefix(num, arr[i], length, toReplace);
+
+    qsort(arr, size, sizeof(char *), numCompare);
+
+    char *prev = NULL;
+
+    for (size_t i = 0; i < size; i++)
+        if (arr[i] != prev) {
+            pnumPut(pnum, arr[i]);
+            prev = arr[i];
+        }
+
+    return pnum;
 }
 
 void phnumDelete(PhoneNumbers *pnum) {

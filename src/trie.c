@@ -145,9 +145,11 @@ bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length) {
     return true;
 }
 
-List *trieNodeGetList(TrieNode *node) {
-    if (!node) return NULL;
-    return node->value.list;
+List *trieFindList(TrieNode *root, const char *str, size_t *length) {
+    if (!root || !root->hasList) return NULL;
+    TrieNode *found = trieFindSeq(root, str, length);
+    if (!found) return NULL;
+    return found->value.list;
 }
 
 const char *trieNodeGetSeq(TrieNode *node) {

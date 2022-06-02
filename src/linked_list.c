@@ -79,11 +79,6 @@ ListNode *listNodePeek(List *l) {
     return l->head;
 }
 
-char *listPeek(List *l) {
-    if (!l->head) return l->head->str;
-    return NULL;
-}
-
 void listNodeRemove(ListNode *node) {
     if (!node || !node->parent) return;
 
@@ -100,6 +95,34 @@ void listNodeRemove(ListNode *node) {
 
     free(node->str);
     free(node);
+}
+
+char** listToArray(List *l, size_t *arraySize) {
+    if (!l) return NULL;
+
+    size_t size = 0;
+    ListNode *curr = l->head;
+    if (!curr) return NULL;
+
+    while (curr) {
+        size++;
+        curr = curr->next;
+    }
+    curr = l->head;
+
+    *arraySize = size + 1;
+
+    char** res = malloc((*arraySize) * sizeof(char*)); // TODO wytłumaczyć powód +1
+    if (!res) return NULL;
+
+    size_t i = 0;
+    while (curr) {
+        res[i] = curr->str;
+        curr = curr->next;
+        i++;
+    }
+
+    return res;
 }
 
 void listNodeRemoveAndCut(ListNode *node) {

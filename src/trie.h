@@ -49,7 +49,7 @@ void trieDelete(TrieNode *node);
 // TODO doc-update
 bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length);
 
-List *trieNodeGetList(TrieNode *node);
+List *trieFindList(TrieNode *root, const char *str, size_t *length);
 
 /** @brief Zwraca wartość węzła @p node.
  * @param[in] node - wskaźnik na oglądany węzeł.

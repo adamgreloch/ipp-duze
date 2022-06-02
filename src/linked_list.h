@@ -22,8 +22,6 @@ bool isEmpty(List *l);
 
 ListNode *listAdd(List *l, char const *str, size_t length);
 
-char *listPeek(List *l);
-
 ListNode *listNodePeek(List *l);
 
 void listNodeRemove(ListNode *node);
@@ -31,5 +29,7 @@ void listNodeRemove(ListNode *node);
 void listNodeRemoveAndCut(ListNode *node);
 
 void listDelete(List *l);
+
+char** listToArray(List *l, size_t *arraySize);
 
 #endif /* __LINKEDLIST_H__ */
