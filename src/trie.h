@@ -1,7 +1,8 @@
 /** @file
  * Interfejs klasy obsługującej strukturę danych trie dla ciągów znaków
  * ze zbioru \f$\Omega=\{0,1,...,9\}\cup\{*, \#\}\f$ (zwanych odtąd
- * poprawnymi ciągami znaków).
+ * poprawnymi ciągami znaków). Klasa umożliwia utworzenie dwóch wzajemnie
+ * zależnych drzew
  *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -14,7 +15,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "structs.h"
-#include "linkedList.h"
+#include "linked_list.h"
 
 #define ALLNUM 12 /**< Rozmiar alfabetu w drzewie,
                        czyli moc zbioru \f$\Omega\f$. */

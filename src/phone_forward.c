@@ -95,9 +95,7 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (!(len1 = isNumber(num1)) || !(len2 = isNumber(num2))) return false;
     if (strcmp(num1, num2) == 0) return false;
 
-    if (!pf->revs)
-        pf->revs = trieNodeNew(NULL, true, &pf->revs);
-
+    if (!pf->revs) pf->revs = trieNodeNew(NULL, true, &pf->revs);
     if (!pf->revs) return false;
 
     TrieNode *fwd = trieInsertStr(&(pf->fwds), num1, false);

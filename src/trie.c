@@ -8,7 +8,7 @@
 
 #include <string.h>
 #include "trie.h"
-#include "linkedList.h"
+#include "linked_list.h"
 
 struct TrieNode {
     struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */

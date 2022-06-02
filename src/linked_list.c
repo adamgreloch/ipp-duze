@@ -8,7 +8,7 @@
  */
 
 #include <string.h>
-#include "linkedList.h"
+#include "linked_list.h"
 #include "trie.h"
 
 struct ListNode {
