@@ -9,6 +9,7 @@
 #include <string.h>
 #include "trie.h"
 #include "linked_list.h"
+#include "alphabet.h"
 
 struct TrieNode {
     struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
@@ -52,17 +53,6 @@ TrieNode *trieNodeNew(TrieNode *parent, bool hasList, TrieNode **pointedBy) {
     node->pointedBy = pointedBy;
 
     return node;
-}
-
-static int getIndex(char c) {
-    switch (c) {
-        case '*':
-            return 10;
-        case '#':
-            return 11;
-        default:
-            return c - '0';
-    }
 }
 
 /**
@@ -131,6 +121,7 @@ ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
 
 bool trieNodeBind(TrieNode *trieNode, ListNode *listNode) {
     if (!listNode || !trieNode || trieNode->hasList) return false;
+    listNodeRemove(trieNode->bound);
     trieNode->bound = listNode;
     return true;
 }
@@ -143,6 +134,16 @@ bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length) {
 
     strcpy(node->value.seq, value);
     return true;
+}
+
+List *trieGetList(TrieNode *root) {
+    if (!root || !root->hasList) return NULL;
+    return root->value.list;
+}
+
+TrieNode *trieGetParent(TrieNode *root) {
+    if (!root) return NULL;
+    return root->parent;
 }
 
 List *trieFindList(TrieNode *root, const char *str, size_t *length) {
@@ -166,7 +167,7 @@ TrieNode *trieFindSeq(TrieNode *root, const char *str, size_t *length) {
     size_t distance = 0;
     bool leaf = false;
     for (size_t i = 0; !leaf && str[i] != '\0'; i++) {
-        idx = getIndex(str[i]);
+        idx = getValue(str[i]);
         if (!root->children[idx]) leaf = true;
         else {
             root = root->children[idx];
@@ -189,7 +190,7 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList) {
     TrieNode *v = *rootPtr;
 
     for (size_t i = 0; str[i] != '\0'; i++) {
-        idx = getIndex(str[i]);
+        idx = getValue(str[i]);
         if (!v->children[idx]) {
             v->children[idx] = trieNodeNew(v, hasList, &v->children[idx]);
             if (!v->children[idx]) return NULL;
@@ -210,7 +211,7 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
         int idx;
         bool mayExist = true;
         for (size_t i = 0; mayExist && str[i] != '\0'; i++) {
-            idx = getIndex(str[i]);
+            idx = getValue(str[i]);
             if (!v || !v->children[idx]) mayExist = false;
             else
                 v = v->children[idx];

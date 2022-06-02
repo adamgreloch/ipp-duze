@@ -8,6 +8,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include "linked_list.h"
 #include "trie.h"
 
@@ -110,15 +111,15 @@ char **listToArray(List *l, size_t *arraySize) {
     }
     curr = l->head;
 
-    *arraySize = size + 1;
+    *arraySize = size;
 
-    char **res = malloc(
-            (*arraySize) * sizeof(char *)); // TODO wytłumaczyć powód +1
+    char **res = malloc(size * sizeof(char *));
     if (!res) return NULL;
 
     size_t i = 0;
     while (curr) {
         res[i] = curr->str;
+        printf("from list %s\n", res[i]);
         curr = curr->next;
         i++;
     }

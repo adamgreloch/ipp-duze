@@ -8,8 +8,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "phone_forward.h"
 #include "trie.h"
+#include "alphabet.h"
 
 /** @brief Struktura przechowująca przekierowania telefonów.
  * Struktura przechowująca przekierowania telefonów trzyma je w postaci
@@ -60,7 +62,7 @@ static size_t isNumber(char const *str) {
     if (!str) return false;
     size_t i = 0;
     while (str[i] != '\0') {
-        if (str[i] != '*' && str[i] != '#' && (str[i] < '0' || '9' < str[i]))
+        if (getValue(str[i]) == -1)
             return 0;
         i++;
     }
@@ -117,7 +119,7 @@ void phfwdRemove(PhoneForward *pf, char const *num) {
  * @return Wskaźnik na strukturę @p PhoneNumbers lub NULL, gdy nie udało się
  * alokować pamięci.
  */
-static PhoneNumbers *pnumNew() {
+static PhoneNumbers *phnumNew() {
     PhoneNumbers *numbers = malloc(sizeof(PhoneNumbers));
     if (!numbers) return NULL;
 
@@ -133,7 +135,7 @@ static PhoneNumbers *pnumNew() {
     return numbers;
 }
 
-static bool pnumPut(PhoneNumbers *pnum, const char *num) {
+static bool phnumAdd(PhoneNumbers *pnum, const char *num) {
     if (pnum->amount == pnum->size) {
         pnum->size *= 2;
         char **backup = pnum->nums;
@@ -144,7 +146,7 @@ static bool pnumPut(PhoneNumbers *pnum, const char *num) {
         }
     }
 
-    pnum->nums[pnum->amount] = malloc((strlen(num) + 1) * sizeof(char));
+    pnum->nums[pnum->amount] = malloc((isNumber(num) + 1) * sizeof(char));
     strcpy(pnum->nums[pnum->amount], num);
     pnum->amount++;
 
@@ -190,7 +192,7 @@ static char *replacePnumPrefix(char const *num, char const *fwdPrefix,
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     if (!pf) return NULL;
 
-    PhoneNumbers *numbers = pnumNew();
+    PhoneNumbers *numbers = phnumNew();
     if (!numbers) return NULL;
 
     size_t length = isNumber(num);
@@ -221,47 +223,67 @@ static int numCompare(const void *a, const void *b) {
     char *num2 = *(char **) b;
     size_t pos = 0;
 
-    while (true)
+    while (true) {
         if (num1[pos] == '\0' && num2[pos] == '\0')
             return 0;
         else if (num1[pos] == '\0')
-            return 1;
-        else if (num2[pos] == '\0')
             return -1;
+        else if (num2[pos] == '\0')
+            return 1;
         else if (num1[pos] == num2[pos])
             pos++;
         else
-            return num1[pos] - num2[pos];
+            return getValue(num1[pos]) - getValue(num2[pos]);
+    }
+}
+
+static void phnumSort(PhoneNumbers *pnum) {
+    if (!pnum || !pnum->nums) return;
+    qsort(pnum->nums, pnum->amount, sizeof(char *), numCompare);
 }
 
 // TODO doc-update: na podstawie forum
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     size_t length, toReplace = 0;
-    if (!pf || !(length = isNumber(num))) return NULL;
-    size_t size;
+    if (!pf) return NULL;
 
-    PhoneNumbers *pnum = pnumNew();
+    PhoneNumbers *pnum = phnumNew();
 
-    char **arr = listToArray(trieFindList(pf->revs, num, &toReplace), &size);
-    if (!arr) {
-        pnumPut(pnum, num);
+    if (!(length = isNumber(num))) {
         return pnum;
     }
 
-    arr[size - 1] = (char *) num;
+    TrieNode *longest = trieFindSeq(pf->revs, num, &toReplace);
+    if (!longest) {
+        phnumAdd(pnum, num);
+        return pnum;
+    }
 
-    for (size_t i = 0; i < size - 1; i++)
-        arr[i] = replacePnumPrefix(num, arr[i], length, toReplace);
-
-    qsort(arr, size, sizeof(char *), numCompare);
-
+    TrieNode *curr = longest;
+    char **arr = NULL;
+    size_t size;
     char *prev = NULL;
 
-    for (size_t i = 0; i < size; i++)
-        if (arr[i] != prev) {
-            pnumPut(pnum, arr[i]);
-            prev = arr[i];
+    while (curr) {
+        free(arr);
+        arr = listToArray(trieGetList(curr), &size);
+        if (arr) {
+            qsort(arr, size, sizeof(char *), numCompare);
+            prev = NULL;
+            for (size_t i = 0; i < size; i++)
+                if (!prev || numCompare(&arr[i], &prev) != 0) {
+                    printf("%s\n", arr[i]);
+                    prev = arr[i];
+                    phnumAdd(pnum,
+                             replacePnumPrefix(num, arr[i], length, toReplace));
+                }
         }
+        curr = trieGetParent(curr);
+        toReplace--;
+    }
+
+    phnumAdd(pnum, num);
+    phnumSort(pnum);
 
     return pnum;
 }
@@ -276,5 +298,6 @@ void phnumDelete(PhoneNumbers *pnum) {
 
 char const *phnumGet(PhoneNumbers const *pnum, size_t idx) {
     if (!pnum || idx > pnum->amount) return NULL;
+    printf("%d: %s \n", idx, pnum->nums[idx]);
     return pnum->nums[idx];
 }

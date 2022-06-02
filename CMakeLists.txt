@@ -26,18 +26,22 @@ set(SOURCE_FILES
     src/phone_forward.h
     src/phone_forward.c
     src/phone_forward_example.c
-        src/linked_list.c
-        src/linked_list.h
-    src/structs.h)
+    src/linked_list.c
+    src/linked_list.h
+    src/structs.h
+    src/alphabet.c
+    src/alphabet.h)
 set(SOURCE_FILES_TEST
     src/trie.h
     src/trie.c
     src/phone_forward.h
     src/phone_forward.c
     src/phone_forward_tests.c
-        src/linked_list.c
-        src/linked_list.h
-    src/structs.h)
+    src/linked_list.c
+    src/linked_list.h
+    src/structs.h
+    src/alphabet.c
+    src/alphabet.h)
 
 # Wskazujemy plik wykonywalny.
 add_executable(phone_forward ${SOURCE_FILES})

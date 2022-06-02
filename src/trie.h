@@ -17,9 +17,6 @@
 #include "structs.h"
 #include "linked_list.h"
 
-#define ALLNUM 12 /**< Rozmiar alfabetu w drzewie,
-                       czyli moc zbioru \f$\Omega\f$. */
-
 /** @brief Tworzy nowy węzeł.
  * Tworzy nowy węzeł @p TrieNode o pustej wartości. Ustawia jego wskaźnik
  * rodzica na @p parent. Powstały węzeł musi być zwolniony za pomocą funkcji
@@ -50,6 +47,10 @@ void trieDelete(TrieNode *node);
 bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length);
 
 List *trieFindList(TrieNode *root, const char *str, size_t *length);
+
+List *trieGetList(TrieNode *root);
+
+TrieNode *trieGetParent(TrieNode *root);
 
 /** @brief Zwraca wartość węzła @p node.
  * @param[in] node - wskaźnik na oglądany węzeł.
