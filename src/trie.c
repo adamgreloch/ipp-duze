@@ -227,7 +227,8 @@ void trieCutLeaves(TrieNode *node) {
     if (!node || !node->hasList) return;
 
     TrieNode *curr = node, *next;
-    while (curr && (!curr->value.list || isEmpty(curr->value.list)) && curr->count == 0) {
+    while (curr && (!curr->value.list || isEmpty(curr->value.list)) &&
+           curr->count == 0) {
         listDelete(curr->value.list);
         *curr->pointedBy = NULL;
         if (curr->parent) {

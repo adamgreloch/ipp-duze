@@ -137,7 +137,7 @@ static bool pnumPut(PhoneNumbers *pnum, const char *num) {
     if (pnum->amount == pnum->size) {
         pnum->size *= 2;
         char **backup = pnum->nums;
-        pnum->nums = realloc(pnum->nums, pnum->size * sizeof(char*));
+        pnum->nums = realloc(pnum->nums, pnum->size * sizeof(char *));
         if (!pnum->nums) {
             pnum->nums = backup;
             return false;
@@ -216,7 +216,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     return numbers;
 }
 
-static int numCompare(const void *a, const void * b) {
+static int numCompare(const void *a, const void *b) {
     char *num1 = *(char **) a;
     char *num2 = *(char **) b;
     size_t pos = 0;
@@ -242,13 +242,13 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
 
     PhoneNumbers *pnum = pnumNew();
 
-    char** arr = listToArray(trieFindList(pf->revs, num, &toReplace), &size);
+    char **arr = listToArray(trieFindList(pf->revs, num, &toReplace), &size);
     if (!arr) {
         pnumPut(pnum, num);
         return pnum;
     }
 
-    arr[size - 1] = (char*) num;
+    arr[size - 1] = (char *) num;
 
     for (size_t i = 0; i < size - 1; i++)
         arr[i] = replacePnumPrefix(num, arr[i], length, toReplace);

@@ -23,7 +23,7 @@ struct List {
     TrieNode *owner;
 };
 
-List * listInit(char const *str, size_t length, TrieNode *owner) {
+List *listInit(char const *str, size_t length, TrieNode *owner) {
     if (!owner) return NULL;
 
     List *l = malloc(sizeof(List));
@@ -97,7 +97,7 @@ void listNodeRemove(ListNode *node) {
     free(node);
 }
 
-char** listToArray(List *l, size_t *arraySize) {
+char **listToArray(List *l, size_t *arraySize) {
     if (!l) return NULL;
 
     size_t size = 0;
@@ -112,7 +112,8 @@ char** listToArray(List *l, size_t *arraySize) {
 
     *arraySize = size + 1;
 
-    char** res = malloc((*arraySize) * sizeof(char*)); // TODO wytłumaczyć powód +1
+    char **res = malloc(
+            (*arraySize) * sizeof(char *)); // TODO wytłumaczyć powód +1
     if (!res) return NULL;
 
     size_t i = 0;

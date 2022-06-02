@@ -16,7 +16,7 @@
 #include <stdbool.h>
 #include "structs.h"
 
-List * listInit(char const *str, size_t length, TrieNode *owner);
+List *listInit(char const *str, size_t length, TrieNode *owner);
 
 bool isEmpty(List *l);
 
@@ -30,6 +30,6 @@ void listNodeRemoveAndCut(ListNode *node);
 
 void listDelete(List *l);
 
-char** listToArray(List *l, size_t *arraySize);
+char **listToArray(List *l, size_t *arraySize);
 
 #endif /* __LINKEDLIST_H__ */
