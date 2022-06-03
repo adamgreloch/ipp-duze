@@ -93,7 +93,8 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList);
 
 /** @brief Usuwa wszystkie ciągi z drzewa, których prefiksem jest @p str.
  * Usuwa wszystkie ciągi z drzewa zakorzenionego w @p *rootPtr, których
- * prefiksem jest ciąg @p str. Zakłada poprawność @p str.
+ * prefiksem jest ciąg @p str. Zakłada poprawność @p str. Usuwa również
+ * wszelkie zbędne węzły od @p *rootPtr do korzenia, jeśli takie napotka.
  * @param[in,out] rootPtr - podwójny wskaźnik na drzewo.
  * @param[in] str - ciąg znaków.
  */
