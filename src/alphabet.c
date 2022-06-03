@@ -1,6 +1,11 @@
 /** @file
  * Implementacja klasy definiującej alfabet.
  *
+ * \e Alfabetem nazywamy znaki ze zbioru \f$\Omega=\{0,1,\ldots,9\}\cup\{*,
+ * \#\}\f$.
+ * Niepuste ciągi znaków z alfabetu nazywamy odtąd <em> poprawnymi ciągami
+ * znaków </em>.
+ *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
  * @date 2022

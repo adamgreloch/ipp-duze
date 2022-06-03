@@ -1,6 +1,9 @@
 /** @file
- * Implementacja klasy obsługującej dwukierunkową listę wskaźnikową
- * przechowującą poprawne ciągi znaków (zdefiniowane w @ref trie.h).
+ * Implementacja klasy obsługującej listę wskaźnikową przechowującą
+ * poprawne ciągi znaków (zdefiniowane w @ref alphabet.h). Lista ta ma być
+ * przechowywana w wierzchołkach drzew @p TrieNode.
+ * Klasa implementuje struktury @p ListNode, @p List zadeklarowane w
+ * interfejsie @ref structs.h.
  *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski

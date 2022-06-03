@@ -1,5 +1,8 @@
 /** @file
- * Implementacja klasy obsługującej strukturę danych trie
+ * Implementacja klasy obsługującej strukturę danych trie dla ciągów znaków
+ * (zdefiniowanych w @ref alphabet.h). Klasa umożliwia utworzenie dwóch
+ * wzajemnie zależnych drzew. Klasa implementuje strukturę @p TrieNode
+ * zadeklarowaną w interfejsie @ref structs.h.
  *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
