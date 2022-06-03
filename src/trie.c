@@ -216,23 +216,40 @@ void trieRemoveStr(TrieNode **rootPtr, const char *str) {
         if (mayExist) {
             *v->pointedBy = NULL;
             v->parent->count--;
+            trieCutLeaves(v->parent);
             trieDelete(v);
         }
     }
 }
 
+/**
+ * @brief Sprawdza, czy węzeł @p node jest pusty.
+ * @param node - wskaźnik na węzeł drzewa.
+ * @return Wartość @p true pod warunkiem, że węzeł nie ma dzieci i nie ma
+ * znaczącej zawartości. Wartość @p false w przeciwnym wypadku.
+ */
+static bool trieNodeIsEmpty(TrieNode *node) {
+    if (node->count) return false;
+    if (node->hasList)
+        return !node->value.list || isEmpty(node->value.list);
+    else
+        return !node->value.seq;
+}
+
 void trieCutLeaves(TrieNode *node) {
-    if (!node || !node->hasList) return;
+    if (!node) return;
 
     TrieNode *curr = node, *next;
-    while (curr && (!curr->value.list || isEmpty(curr->value.list)) &&
-           curr->count == 0) {
-        listDelete(curr->value.list);
+    while (curr && trieNodeIsEmpty(curr)) {
+        if (curr->hasList)
+            listDelete(curr->value.list);
+
         *curr->pointedBy = NULL;
         if (curr->parent) {
             curr->parent->count--;
             curr->parent->lastVisited = -1;
         }
+
         next = curr->parent;
         free(curr);
         curr = next;

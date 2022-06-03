@@ -136,9 +136,8 @@ void listNodeRemoveAndCut(ListNode *node) {
     if (!node) return;
     List *parent = node->parent;
     listNodeRemove(node);
-    if (isEmpty(parent)) {
+    if (isEmpty(parent))
         trieCutLeaves(parent->owner);
-    }
 }
 
 void listDelete(List *l) {
