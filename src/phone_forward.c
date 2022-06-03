@@ -30,10 +30,10 @@
  * @see trie.h
  */
 struct PhoneForward {
-    TrieNode *fwds; /**< Wskaźnik na korzeń struktury przechowującej jako węzły prefiksy
-                         dla których ustalono przekierowanie. */
+    TrieNode *fwds; /**< Wskaźnik na korzeń struktury przechowującej jako węzły
+                         prefiksy, dla których ustalono przekierowanie. */
     TrieNode *revs; /**< Wskaźnik na korzeń struktury przechowującej jako węzły
-                            przekierowania. */
+                         przekierowania. */
 };
 
 /**
@@ -107,6 +107,11 @@ static PhoneNumbers *phnumNew() {
     return pnum;
 }
 
+/**
+ * @brief Dodaje ciąg znaków @p num do @p pnum.
+ * @return Wartość @p true, jeśli operacja się powiodła, wartość @p false w
+ * przeciwnym wypadku.
+ */
 static bool phnumAdd(PhoneNumbers *pnum, const char *num) {
     if (!pnum) return false;
     return tableAdd(pnum->nums, num);
@@ -125,8 +130,9 @@ static bool phnumAdd(PhoneNumbers *pnum, const char *num) {
  * @return Wskaźnik na napis reprezentujący numer telefonu z nowym prefiksem
  * lub NULL, gdy nie udało się alokować pamięci.
  */
-static char *replacePrefix(char const *num, char const *fwdPrefix,
-                           size_t numLength, size_t toReplace) {
+static char *
+replacePrefix(char const *num, char const *fwdPrefix, size_t numLength,
+              size_t toReplace) {
     size_t fwdPrefixLength = strlen(fwdPrefix);
     size_t newNumLength = numLength + fwdPrefixLength - toReplace;
 
@@ -139,8 +145,7 @@ static char *replacePrefix(char const *num, char const *fwdPrefix,
         if (i < fwdPrefixLength) {
             new[i] = fwdPrefix[i];
             i++;
-        }
-        else {
+        } else {
             new[fwdPrefixLength + j] = num[j + toReplace];
             j++;
         }
@@ -177,28 +182,22 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     return pnum;
 }
 
-static int numCompare(const void *a, const void *b) {
-    char *num1 = *(char **) a;
-    char *num2 = *(char **) b;
-    size_t pos = 0;
-
-    while (true) {
-        if (num1[pos] == '\0' && num2[pos] == '\0')
-            return 0;
-        else if (num1[pos] == '\0')
-            return -1;
-        else if (num2[pos] == '\0')
-            return 1;
-        else if (num1[pos] == num2[pos])
-            pos++;
-        else
-            return getValue(num1[pos]) - getValue(num2[pos]);
-    }
-}
-
-static Table *findAllRevs(TrieNode *from, char const *num,
-                          size_t length, size_t toReplace) {
+/** @brief Zbiera wskaźniki do nowych prefiksów ze wszystkich list na ścieżce z
+ * wierzchołka @p from do korzenia drzewa w którym się znajduje.
+ * Alokuje strukturę @p Table, która musi być zwolniona za pomocą funkcji @ref
+ * tableDelete. Umieszcza w @p Table numery powstałe z
+ * @p num z zastąpionymi odpowiednimi prefiksami.
+ * @param from - wskaźnik na początek ścieżki.
+ * @param num - wskaźnik na ciąg znaków, którego prefiksy będą zastępowane nowymi.
+ * @param length - długość @p num.
+ * @param depth - głębokość wierzchołka, czyli długość w.w. ścieżki.
+ * @return Wskaźnik na strukturę @p Table, lub NULL, gdy nie udało się
+ * alokować pamięci.
+ */
+static Table *
+findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
     Table *revs = tableNew();
+    if (!revs) return NULL;
 
     TrieNode *curr = from;
     char **arr = NULL;
@@ -208,34 +207,39 @@ static Table *findAllRevs(TrieNode *from, char const *num,
         free(arr);
         arr = listToArray(trieGetList(curr), &size);
         if (arr) {
-            qsort(arr, size, sizeof(char *), numCompare);
+            qsort(arr, size, sizeof(char *), strCompare);
             for (size_t i = 0; i < size; i++)
-                tableAddPtr(revs,
-                            replacePrefix(num, arr[i], length, toReplace));
+                tableAddPtr(revs, replacePrefix(num, arr[i], length, depth));
         }
         curr = trieGetParent(curr);
-        toReplace--;
+        depth--;
     }
 
     return revs;
 }
 
+/**
+ * @brief Dodaje do struktury @p pnum wszystkie rozróżnialne elementy z
+ * tablicy @p duplicated. Dodawane elementy są posortowane leksykograficzne.
+ * Dopuszcza, że w @p duplicated istnieją duplikaty.
+ * @param pnum - wskaźnik na strukturę, do której dodawane są elementy.
+ * @param duplicated - wskaźnik na tablicę, z której dodawane będą elementy.
+ */
 static void phnumAddDistinct(PhoneNumbers *pnum, Table *duplicated) {
-    tableSort(duplicated, numCompare);
+    tableSort(duplicated, strCompare);
 
     char *prev = NULL;
     char *elem;
 
     for (size_t i = 0; i < tableGetAmount(duplicated); i++) {
         elem = tableGet(duplicated, i);
-        if (!prev || numCompare(&elem, &prev) != 0) {
+        if (!prev || strCompare(&elem, &prev) != 0) {
             prev = elem;
             phnumAdd(pnum, tableGet(duplicated, i));
         }
     }
 }
 
-// TODO doc-update: na podstawie forum
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     size_t length, toReplace = 0;
     if (!pf) return NULL;

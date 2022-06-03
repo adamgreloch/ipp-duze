@@ -1,3 +1,11 @@
+/** @file
+ * Implementacja klasy definiującej alfabet.
+ *
+ * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
+ */
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include "alphabet.h"
@@ -24,5 +32,24 @@ size_t isCorrect(char const *str) {
         i++;
     }
     return i;
+}
+
+int strCompare(const void *a, const void *b) {
+    char *num1 = *(char **) a;
+    char *num2 = *(char **) b;
+    size_t pos = 0;
+
+    while (true) {
+        if (num1[pos] == '\0' && num2[pos] == '\0')
+            return 0;
+        else if (num1[pos] == '\0')
+            return -1;
+        else if (num2[pos] == '\0')
+            return 1;
+        else if (num1[pos] == num2[pos])
+            pos++;
+        else
+            return getValue(num1[pos]) - getValue(num2[pos]);
+    }
 }
 

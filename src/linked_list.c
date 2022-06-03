@@ -1,6 +1,6 @@
 /** @file
  * Implementacja klasy obsługującej dwukierunkową listę wskaźnikową
- * przechowującą poprawne ciągi znaków (zdefiniowane w trie.h).
+ * przechowującą poprawne ciągi znaków (zdefiniowane w @ref trie.h).
  *
  * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -8,20 +8,26 @@
  */
 
 #include <string.h>
-#include <stdio.h>
 #include "linked_list.h"
 #include "trie.h"
 
+/**
+ * Struktura przechowująca element listy typu @p List.
+ */
 struct ListNode {
-    char *str; /**< Poprawny ciąg znaków. */
-    ListNode *prev;
-    ListNode *next;
-    List *parent;
+    char *str; /**< Wskaźnik na poprawny ciąg znaków. */
+    ListNode *prev; /**< Wskaźnik na poprzedni węzeł listy. */
+    ListNode *next; /**< Wskaźnik na następny węzeł listy. */
+    List *parent; /**< Wskaźnik na listę zawierającą ten węzeł. */
 };
 
+/**
+ * Struktura podwójnie łączoną listę elementów typu @p ListNode.
+ */
 struct List {
-    ListNode *head;
-    TrieNode *owner;
+    ListNode *head; /**< Wskaźnik na head listy. */
+    TrieNode *owner; /**< Wskaźnik na węzeł drzewa trie zawierającego
+                          wskaźnik na tę listę. */
 };
 
 List *listInit(char const *str, size_t length, TrieNode *owner) {
@@ -76,7 +82,7 @@ ListNode *listAdd(List *l, char const *str, size_t length) {
     return n;
 }
 
-ListNode *listNodePeek(List *l) {
+ListNode *listNodeHead(List *l) {
     return l->head;
 }
 

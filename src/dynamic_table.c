@@ -1,3 +1,12 @@
+/** @file
+ * Implementacja klasy obsługującej dynamiczną tablicę poprawnych ciągów
+ * znaków (zdefiniowanych w @ref alphabet.h)
+ *
+ * @author Adam Greloch <ag438473@students.mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
+ */
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -7,6 +16,9 @@
 #define INIT_SIZE 64 /**< Początkowy rozmiar dynamicznej tablicy @p
                           Table#data */
 
+/**
+ * Struktura przechowująca tablicę o zmiennym rozmiarze.
+ */
 struct Table {
     size_t amount; /**< Liczba numerów telefonów przechowywanych w @p str. */
     char **data; /**< Dynamiczna tablica o początkowym rozmiarze @p INIT_SIZE,
@@ -35,6 +47,12 @@ void tableSort(Table *t, int (*cmp)(const void *, const void *)) {
     qsort(t->data, t->amount, sizeof(char *), cmp);
 }
 
+/**
+ * @brief Podwaja rozmiar tablicy @p t, jeśli jest zapełniona.
+ * @param t - wskaźnik na tablicę.
+ * @return Wartość @p true, jeśli po wywołaniu funkcji tablica @p t nie jest
+ * zapełniona. Wartość @p false, gdy nie udało się alokować pamięci.
+ */
 static bool tableResize(Table *t) {
     if (t->amount == t->size) {
         t->size *= 2;

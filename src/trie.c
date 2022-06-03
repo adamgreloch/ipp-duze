@@ -11,10 +11,14 @@
 #include "linked_list.h"
 #include "alphabet.h"
 
+/**
+ * Struktura przechowująca węzeł drzewa trie.
+ */
 struct TrieNode {
     struct TrieNode *parent; /**< Wskaźnik na rodzica węzła. */
     struct TrieNode *children[ALLNUM]; /**< Tablica wskaźników na dzieci węzła. */
-    size_t count;
+    size_t count; /**< Liczba dzieci węzła. */
+
     /**
      * Wartość węzła, która, jeśli niepusta (ma wartość inną niż NULL), to jest
      * poprawnym ciągiem znaków lub listą poprawnych ciągów znaków.
@@ -24,16 +28,20 @@ struct TrieNode {
         List *list; /**< Wskaźnik na listę poprawnych ciągów znaków. */
     } value;
 
-    bool hasList; /**< [TYMCZASOWE] wartość logiczna przyjmująca TRUE, jeśli
-                        węzeł zawiera listę w @p value, FALSE jeśli zawiera
-                        poprawny ciąg znaków. */
+    bool hasList; /**< Wartość @p true, jeśli węzeł zawiera listę w @p value,
+                       wartość @p false, jeśli zawiera poprawny ciąg znaków. */
     int lastVisited; /**< Ostatnio odwiedzony przez trieDelete() numer
-                          dziecka. Resetowany do -1 przy zmianie
+                          dziecka. Resetowany do @p -1 przy zmianie
                           struktury poddrzew. */
     ListNode *bound; /**< Wskaźnik na element listy, znajdujący
                           się w @p list pewnego węzła, zawierający ciąg
                           znaków, który reprezentuje ten węzeł. */
-    TrieNode **pointedBy;
+    TrieNode **pointedBy; /**< Wskaźnik na wskaźnik na ten węzeł,
+                               znajdujący się w tablicy rodzica. Przy usuwaniu
+                               węzła służy do ustawiania ewaluowanego
+                               wskaźnika na NULL, co zapobiega dostępowi do
+                               zwolnionej pamięci przy przeszukiwaniu tablicy
+                               dzieci rodzica. */
 };
 
 TrieNode *trieNodeNew(TrieNode *parent, bool hasList, TrieNode **pointedBy) {
@@ -56,15 +64,15 @@ TrieNode *trieNodeNew(TrieNode *parent, bool hasList, TrieNode **pointedBy) {
 }
 
 /**
- * Zwalnia wartość węzła @p node oraz sam węzeł.
- * @param node - wskaźnik na węzeł.
+ * @brief Zwalnia węzeł @p node. Jeśli z wierzchołkiem skojarzony jest
+ * pewien element listy w innym drzewie, to zostaje on usunięty.
+ * @param node - wskaźnik na węzeł drzewa.
  */
 static void freeTrieNode(TrieNode *node) {
     if (node->hasList) {
         listDelete(node->value.list);
         node->value.list = NULL;
-    }
-    else {
+    } else {
         listNodeRemoveAndCut(node->bound);
         free(node->value.seq);
     }
@@ -85,8 +93,7 @@ void trieDelete(TrieNode *node) {
             if (curr == node) {
                 freeTrieNode(curr);
                 curr = NULL;
-            }
-            else {
+            } else {
                 toFree = curr;
                 curr = curr->parent;
                 /* Przekazany do zwolnienia curr był dzieckiem nowego curr.
@@ -95,15 +102,13 @@ void trieDelete(TrieNode *node) {
                 curr->count--;
                 freeTrieNode(toFree);
             }
-        }
-        else {
+        } else {
             /* W przeciwnym razie szukamy węzłów bez dzieci do usunięcia. */
             idx = curr->lastVisited + 1;
             if (curr->children[idx]) {
                 curr->lastVisited = idx;
                 curr = curr->children[idx];
-            }
-            else
+            } else
                 curr->lastVisited++;
         }
 }
@@ -113,7 +118,7 @@ ListNode *trieAddToList(TrieNode *node, const char *value, size_t length) {
 
     if (!node->value.list) {
         if (!(node->value.list = listInit(value, length, node))) return NULL;
-        else return listNodePeek(node->value.list);
+        else return listNodeHead(node->value.list);
     }
 
     return listAdd(node->value.list, value, length);
@@ -126,31 +131,24 @@ bool trieNodeBind(TrieNode *trieNode, ListNode *listNode) {
     return true;
 }
 
-bool trieNodeSetSeq(TrieNode *node, const char *value, size_t length) {
+bool trieNodeSetSeq(TrieNode *node, const char *seq, size_t length) {
     if (!node) return false;
 
     node->value.seq = realloc(node->value.seq, (length + 1) * sizeof(char));
     if (!node->value.seq) return false;
 
-    strcpy(node->value.seq, value);
+    strcpy(node->value.seq, seq);
     return true;
 }
 
-List *trieGetList(TrieNode *root) {
-    if (!root || !root->hasList) return NULL;
-    return root->value.list;
+List *trieGetList(TrieNode *node) {
+    if (!node || !node->hasList) return NULL;
+    return node->value.list;
 }
 
-TrieNode *trieGetParent(TrieNode *root) {
-    if (!root) return NULL;
-    return root->parent;
-}
-
-List *trieFindList(TrieNode *root, const char *str, size_t *length) {
-    if (!root || !root->hasList) return NULL;
-    TrieNode *found = trieFindSeq(root, str, length);
-    if (!found) return NULL;
-    return found->value.list;
+TrieNode *trieGetParent(TrieNode *node) {
+    if (!node) return NULL;
+    return node->parent;
 }
 
 const char *trieNodeGetSeq(TrieNode *node) {
@@ -201,7 +199,6 @@ TrieNode *trieInsertStr(TrieNode **rootPtr, const char *str, bool hasList) {
         }
         v = v->children[idx];
     }
-    // FIXME zwraca garbage
     return v;
 }
 

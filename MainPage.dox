@@ -20,4 +20,19 @@ Zaimplementowane operacje na drzewach trie są nierekurencyjne, co pozwala na
 obsługę znacznie dłuższych numerów telefonów niż ich rekurencyjne odpowiedniki,
 których powodzenie uzależnione jest od pojemności stosu wywołań.
 
+Na potrzebę funkcji phfwdReverse() obok drzewa przekierowań @ref PhoneForward#fwds, wprowadzono równolegle aktualizowane,
+odwrotne drzewo trie @ref PhoneForward#revs, przechowujące pod przekierowaniami listy numerów wejściowych.
+Takie rozwiązanie pozwala na szybkie znalezienie wszystkich wejściowych numerów
+prowadzących do danego przekierowania, co w przypadku funkcji phfwdReverse() ma
+kluczowe znaczenie z perspektywy kosztów operacji, gdyż wspomniane szukanie
+wejściowych numerów odbywa się w niej dla każdego prefiksu wejściowego przekierowania.
+
+Wprowadzono zatem rozróżnienie na dwa typy drzewa trie w zależności od typu jego
+zawartości. Drzewa, w których szukane jest przekierowanie, mają za wartość wskaźnik na ciąg znaków,
+zaś drzewa, w których szukane są wszystkie wejściowe numery dla danego przekierowania,
+zawierają wskaźniki na podwójnie łączone listy wskaźnikowe @ref List.
+
+W modułach projektu obowiązują definicje *poprawnego ciągu znaków* oraz *alfabetu*,
+zawarte w @ref alphabet.h na potrzebę spójności przy wymianie informacji między modułami.
+
 */
