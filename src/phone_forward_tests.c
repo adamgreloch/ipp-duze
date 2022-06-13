@@ -18,7 +18,7 @@
 
 // Gdzieś musi być zdefiniowany magiczny napis służący do spawdzania, czy
 // program w całości wykonał się poprawnie.
-extern char quite_long_magic_string[];
+char quite_long_magic_string[] = "MAGIC";
 
 // Możliwe wyniki testu
 #define PASS 0

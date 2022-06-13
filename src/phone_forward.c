@@ -202,14 +202,21 @@ findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
     TrieNode *curr = from;
     char **arr = NULL;
     size_t size;
+    char *replaced;
 
     while (curr) {
         free(arr);
         arr = listToArray(trieGetList(curr), &size);
         if (arr) {
             qsort(arr, size, sizeof(char *), strCompare);
-            for (size_t i = 0; i < size; i++)
-                tableAddPtr(revs, replacePrefix(num, arr[i], length, depth));
+            for (size_t i = 0; i < size; i++) {
+                replaced = replacePrefix(num, arr[i], length, depth);
+                if (!tableAddPtr(revs, replaced)) {
+                    free(replaced);
+                    tableDelete(revs);
+                    return NULL;
+                }
+            }
         }
         curr = trieGetParent(curr);
         depth--;
@@ -259,6 +266,7 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     Table *duplicated = findAllRevs(longest, num, length, toReplace);
     tableAdd(duplicated, num);
     phnumAddDistinct(pnum, duplicated);
+    tableDelete(duplicated);
 
     return pnum;
 }
