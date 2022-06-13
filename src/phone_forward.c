@@ -112,9 +112,9 @@ static PhoneNumbers *phnumNew() {
  * @return Wartość @p true, jeśli operacja się powiodła, wartość @p false w
  * przeciwnym wypadku.
  */
-static bool phnumAdd(PhoneNumbers *pnum, const char *num) {
+static bool phnumAdd(PhoneNumbers *pnum, char *num) {
     if (!pnum) return false;
-    return tableAdd(pnum->nums, num);
+    return tableAddPtr(pnum->nums, num);
 }
 
 /**
@@ -153,6 +153,18 @@ replacePrefix(char const *num, char const *fwdPrefix, size_t numLength,
     return new;
 }
 
+static PhoneNumbers *phnumWithOne(PhoneNumbers *pnum, const char *num, size_t
+length) {
+    if (!pnum) pnum = phnumNew();
+    char *toAdd = malloc((length + 1) * sizeof(char));
+    if (!toAdd || !strcpy(toAdd, num) || !phnumAdd(pnum, toAdd)) {
+        free(toAdd);
+        phnumDelete(pnum);
+        return NULL;
+    }
+    return pnum;
+}
+
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     if (!pf) return NULL;
 
@@ -164,10 +176,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
     size_t toReplace;
     TrieNode *found = trieFindSeq(pf->fwds, num, &toReplace);
-    if (!found) {
-        phnumAdd(pnum, num);
-        return pnum;
-    }
+    if (!found) return phnumWithOne(pnum, num, length);
 
     char *replaced = replacePrefix(num, trieNodeGetSeq(found), length,
                                    toReplace);
@@ -177,7 +186,6 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     }
 
     phnumAdd(pnum, replaced);
-    free(replaced);
 
     return pnum;
 }
@@ -185,7 +193,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 /** @brief Zbiera wskaźniki do nowych prefiksów ze wszystkich list na ścieżce z
  * wierzchołka @p from do korzenia drzewa w którym się znajduje.
  * Alokuje strukturę @p Table, która musi być zwolniona za pomocą funkcji @ref
- * tableDelete. Umieszcza w @p Table numery powstałe z
+ * tableFreeAll. Umieszcza w @p Table numery powstałe z
  * @p num z zastąpionymi odpowiednimi prefiksami.
  * @param from - wskaźnik na początek ścieżki.
  * @param num - wskaźnik na ciąg znaków, którego prefiksy będą zastępowane nowymi.
@@ -212,8 +220,9 @@ findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
             for (size_t i = 0; i < size; i++) {
                 replaced = replacePrefix(num, arr[i], length, depth);
                 if (!tableAddPtr(revs, replaced)) {
+                    free(arr);
                     free(replaced);
-                    tableDelete(revs);
+                    tableFreeAll(revs);
                     return NULL;
                 }
             }
@@ -222,17 +231,26 @@ findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
         depth--;
     }
 
+    if (tableIsEmpty(revs)) {
+        /* Tablica @p revs jest pusta, co jest sprzeczne z założeniem. Musiał
+        więc nastąpić problem z alokacją pamięci w listToArray() */
+        tableFreeAll(revs);
+        return NULL;
+    }
+
     return revs;
 }
 
 /**
  * @brief Dodaje do struktury @p pnum wszystkie rozróżnialne elementy z
  * tablicy @p duplicated. Dodawane elementy są posortowane leksykograficzne.
- * Dopuszcza, że w @p duplicated istnieją duplikaty.
+ * Dopuszcza, że w @p duplicated istnieją duplikaty. Zwalnia tablicę @p
+ * duplicated i tylko wskazywane przez nią duplikaty, w szczególności nie
+ * zwalnia dodanych do @p pnum elementów,
  * @param pnum - wskaźnik na strukturę, do której dodawane są elementy.
  * @param duplicated - wskaźnik na tablicę, z której dodawane będą elementy.
  */
-static void phnumAddDistinct(PhoneNumbers *pnum, Table *duplicated) {
+static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
     tableSort(duplicated, strCompare);
 
     char *prev = NULL;
@@ -242,38 +260,38 @@ static void phnumAddDistinct(PhoneNumbers *pnum, Table *duplicated) {
         elem = tableGet(duplicated, i);
         if (!prev || strCompare(&elem, &prev) != 0) {
             prev = elem;
-            phnumAdd(pnum, tableGet(duplicated, i));
-        }
+            if (!phnumAdd(pnum, tableGet(duplicated, i))) {
+                return false;
+            }
+        } else free(elem);
     }
+    tableFree(duplicated);
+    return true;
 }
 
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     size_t length, toReplace = 0;
     if (!pf) return NULL;
-
-    PhoneNumbers *pnum = phnumNew();
-
-    if (!(length = isCorrect(num))) {
-        return pnum;
-    }
+    if (!(length = isCorrect(num))) return phnumNew();
 
     TrieNode *longest = trieFindSeq(pf->revs, num, &toReplace);
-    if (!longest) {
-        phnumAdd(pnum, num);
-        return pnum;
-    }
+    if (!longest) return phnumWithOne(NULL, num, length);
 
     Table *duplicated = findAllRevs(longest, num, length, toReplace);
-    tableAdd(duplicated, num);
-    phnumAddDistinct(pnum, duplicated);
-    tableDelete(duplicated);
+
+    PhoneNumbers *pnum = phnumNew();
+    if (!pnum || !duplicated || !tableAdd(duplicated, num) ||
+        !phnumConsumeDistinct(pnum, duplicated)) {
+        tableFreeAll(duplicated);
+        return phnumWithOne(pnum, num, length);
+    }
 
     return pnum;
 }
 
 void phnumDelete(PhoneNumbers *pnum) {
     if (!pnum) return;
-    tableDelete(pnum->nums);
+    tableFreeAll(pnum->nums);
     free(pnum);
 }
 

@@ -13,7 +13,7 @@
 #include "dynamic_table.h"
 #include "alphabet.h"
 
-#define INIT_SIZE 64 /**< Początkowy rozmiar dynamicznej tablicy @p
+#define INIT_SIZE 16 /**< Początkowy rozmiar dynamicznej tablicy @p
                           Table#data */
 
 /**
@@ -67,6 +67,7 @@ static bool tableResize(Table *t) {
 }
 
 bool tableAdd(Table *t, const char *str) {
+    if (!t || !str) return false;
     if (!tableResize(t)) return false;
 
     t->data[t->amount] = malloc((isCorrect(str) + 1) * sizeof(char));
@@ -79,19 +80,28 @@ bool tableAdd(Table *t, const char *str) {
 }
 
 bool tableAddPtr(Table *t, char *str) {
-    if (!tableResize(t)) return false;
+    if (!tableResize(t) || !str) return false;
 
     t->data[t->amount++] = str;
 
     return true;
 }
 
-void tableDelete(Table *t) {
+void tableFree(Table *t) {
+    if (!t) return;
+    free(t->data);
+    free(t);
+}
+
+bool tableIsEmpty(Table *t) {
+    return t->amount == 0;
+}
+
+void tableFreeAll(Table *t) {
     if (!t) return;
     for (size_t i = 0; i < t->amount; i++)
         free(t->data[i]);
-    free(t->data);
-    free(t);
+    tableFree(t);
 }
 
 char *tableGet(Table *t, size_t idx) {
