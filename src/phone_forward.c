@@ -191,21 +191,19 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
 /** @brief Zbiera wskaźniki do nowych prefiksów ze wszystkich list na ścieżce z
  * wierzchołka @p from do korzenia drzewa w którym się znajduje.
- * Alokuje strukturę @p Table, która musi być zwolniona za pomocą funkcji @ref
- * tableFree. Umieszcza w @p Table numery powstałe z
- * @p num z zastąpionymi odpowiednimi prefiksami.
+ * Umieszcza w @p revs numery powstałe z * @p num z zastąpionymi
+ * odpowiednimi prefiksami.
  * @param from - wskaźnik na początek ścieżki.
+ * @param revs - wskaźnik na docelową tablicę
  * @param num - wskaźnik na ciąg znaków, którego prefiksy będą zastępowane nowymi.
  * @param length - długość @p num.
  * @param depth - głębokość wierzchołka, czyli długość w.w. ścieżki.
- * @return Wskaźnik na strukturę @p Table, lub NULL, gdy nie udało się
- * alokować pamięci.
+ * @return Wartość @p true, jeśli operacja się powiodła. Wartość @p false, jeśli
+ * nie udało sie alokować pamięci.
  */
-static Table *
-findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
-    Table *revs = tableNew();
-    if (!revs) return NULL;
-
+static bool
+findAllRevs(TrieNode *from, Table *revs, char const *num, size_t length,
+            size_t depth) {
     TrieNode *curr = from;
     char **arr = NULL;
     size_t size;
@@ -213,31 +211,27 @@ findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
 
     while (curr) {
         free(arr);
-        arr = listToArray(trieGetList(curr), &size);
-        if (arr) {
+        arr = NULL;
+
+        if (trieGetList(curr) && !isEmpty(trieGetList(curr))) {
+            arr = listToArray(trieGetList(curr), &size);
+            if (!arr) return false;
             qsort(arr, size, sizeof(char *), strCompare);
             for (size_t i = 0; i < size; i++) {
                 replaced = replacePrefix(num, arr[i], length, depth);
                 if (!tableAddPtr(revs, replaced)) {
                     free(arr);
                     free(replaced);
-                    tableFree(revs);
-                    return NULL;
+                    return false;
                 }
             }
         }
+
         curr = trieGetParent(curr);
         depth--;
     }
 
-    if (tableIsEmpty(revs)) {
-        /* Tablica @p revs jest pusta, co jest sprzeczne z założeniem. Musiał
-        więc nastąpić problem z alokacją pamięci w listToArray() */
-        tableFree(revs);
-        return NULL;
-    }
-
-    return revs;
+    return true;
 }
 
 /**
@@ -276,10 +270,20 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     TrieNode *longest = trieFindSeq(pf->revs, num, &toReplace);
     if (!longest) return phnumWithOne(NULL, num);
 
-    Table *duplicated = findAllRevs(longest, num, length, toReplace);
+    Table *duplicated = tableNew();
+    if (!duplicated ||
+        !findAllRevs(longest, duplicated, num, length, toReplace)) {
+        tableFree(duplicated);
+        return NULL;
+    }
+
+    if (tableIsEmpty(duplicated)) {
+        tableFree(duplicated);
+        return phnumWithOne(NULL, num);
+    }
 
     PhoneNumbers *pnum = phnumNew();
-    if (!pnum || !duplicated || !tableAdd(duplicated, num) ||
+    if (!pnum || !tableAdd(duplicated, num) ||
         !phnumConsumeDistinct(pnum, duplicated)) {
         tableFree(duplicated);
         phnumDelete(pnum);
