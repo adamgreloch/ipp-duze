@@ -96,6 +96,22 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num);
  */
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num);
 
+/** @brief Wyznacza przeciwobraz funkcji phfwdGet() dla danego numer.
+ * Wyznacza posortowaną leksykograficznie listę wszystkich takich numerów
+ * Wyznacza następujący ciąg numerów: numer @x należy do wyniku wywołania
+ * @ref phfwdGetReverse z numerem @p num wtedy i tylko wtedy, gdy
+ * wynik wywołania @p phfwdGet z numerem @p x zawiera numer @p num.
+ * Wynikowe numery są posortowane leksykograficznie i nie mogą się powtarzać.
+ * Jeśli podany napis nie reprezentuje numeru, wynikiem jest pusty ciąg.
+ * Alokuje strukturę @p PhoneNumbers, która musi być zwolniona za pomocą
+ * funkcji @ref phnumDelete.
+ * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
+ * @param[in] num – wskaźnik na napis reprezentujący numer.
+ * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
+ *         udało się alokować pamięci.
+ */
+PhoneNumbers *phfwdGetReverse(PhoneForward const *pf, char const *num);
+
 /** @brief Usuwa strukturę.
  * Usuwa strukturę wskazywaną przez @p pnum. Nic nie robi, jeśli wskaźnik ten ma
  * wartość NULL.

@@ -264,6 +264,7 @@ static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
         }
     }
     tableFree(duplicated);
+
     return true;
 }
 
@@ -286,6 +287,39 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     }
 
     return pnum;
+}
+
+static size_t phnumGetAmount(PhoneNumbers *pnum) {
+    return tableGetAmount(pnum->nums);
+}
+
+PhoneNumbers *phfwdGetReverse(PhoneForward const *pf, char const *num) {
+    PhoneNumbers *revs = phfwdReverse(pf, num);
+    PhoneNumbers *realRevs = phnumNew();
+    if (!revs || !realRevs) {
+        phnumDelete(realRevs);
+        phnumDelete(revs);
+        return NULL;
+    }
+    size_t numCount = phnumGetAmount(revs);
+    PhoneNumbers *got;
+
+    char *rev;
+    for (size_t i = 0; i < numCount; i++) {
+        rev = (char *) phnumGet(revs, i);
+        got = phfwdGet(pf, rev);
+        if (got && strcmp(phnumGet(got, 0), num) == 0)
+            if (!phnumAdd(realRevs, rev)) {
+                phnumDelete(realRevs);
+                phnumDelete(revs);
+                phnumDelete(got);
+                return NULL;
+            }
+        phnumDelete(got);
+    }
+
+    phnumDelete(revs);
+    return realRevs;
 }
 
 void phnumDelete(PhoneNumbers *pnum) {
