@@ -171,7 +171,7 @@ static PhoneNumbers *phnumWithOne(PhoneNumbers *pnum, const char *num) {
 }
 
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
-    if (!pf) return NULL;
+    if (!pf || !num) return NULL;
 
     PhoneNumbers *pnum = phnumNew();
     if (!pnum) return NULL;
@@ -271,7 +271,7 @@ static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
 
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     size_t length, toReplace = 0;
-    if (!pf) return NULL;
+    if (!pf || !num) return NULL;
     if (!(length = isCorrect(num))) return phnumNew();
 
     TrieNode *longest = trieFindSeq(pf->revs, num, &toReplace);
@@ -311,6 +311,7 @@ static size_t phnumGetAmount(PhoneNumbers *pnum) {
 }
 
 PhoneNumbers *phfwdGetReverse(PhoneForward const *pf, char const *num) {
+    if (!pf || !num) return NULL;
     PhoneNumbers *revs = phfwdReverse(pf, num);
     PhoneNumbers *realRevs = phnumNew();
     if (!revs || !realRevs) {
