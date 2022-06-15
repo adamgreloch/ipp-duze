@@ -68,6 +68,12 @@ void tableFree(Table *t);
  */
 size_t tableGetAmount(Table *t);
 
+/**
+ * @brief Sprawdza, czy tablica jest pusta. Zakłada, że @p t nie jest NULL-em.
+ * @param t - wskaźnik na tablicę.
+ * @return Wartość @p true, jeśli jest pusta, wartość @p false w
+ * przeciwnym wypadku.
+ */
 bool tableIsEmpty(Table *t);
 
 #endif /* __DYNAMIC_TABLE_H__ */

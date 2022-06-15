@@ -81,9 +81,7 @@ bool tableAdd(Table *t, const char *str) {
 
 bool tableAddPtr(Table *t, char *str) {
     if (!tableResize(t) || !str) return false;
-
     t->data[t->amount++] = str;
-
     return true;
 }
 

@@ -193,11 +193,12 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
  * wierzchołka @p from do korzenia drzewa w którym się znajduje.
  * Umieszcza w @p revs numery powstałe z * @p num z zastąpionymi
  * odpowiednimi prefiksami.
- * @param from - wskaźnik na początek ścieżki.
- * @param revs - wskaźnik na docelową tablicę
- * @param num - wskaźnik na ciąg znaków, którego prefiksy będą zastępowane nowymi.
- * @param length - długość @p num.
- * @param depth - głębokość wierzchołka, czyli długość w.w. ścieżki.
+ * @param[in] from - wskaźnik na początek ścieżki.
+ * @param[in,out] revs - wskaźnik na docelową tablicę
+ * @param[in] num - wskaźnik na ciąg znaków, którego prefiksy będą
+ *                  zastępowane nowymi.
+ * @param[in] length - długość @p num.
+ * @param[in] depth - głębokość wierzchołka, czyli długość w.w. ścieżki.
  * @return Wartość @p true, jeśli operacja się powiodła. Wartość @p false, jeśli
  * nie udało sie alokować pamięci.
  */
@@ -237,11 +238,11 @@ findAllRevs(TrieNode *from, Table *revs, char const *num, size_t length,
 /**
  * @brief Dodaje do struktury @p pnum wszystkie rozróżnialne elementy z
  * tablicy @p duplicated. Dodawane elementy są posortowane leksykograficzne.
- * Dopuszcza, że w @p duplicated istnieją duplikaty. Zwalnia tablicę @p
- * duplicated i tylko wskazywane przez nią duplikaty, w szczególności nie
- * zwalnia dodanych do @p pnum elementów,
- * @param pnum - wskaźnik na strukturę, do której dodawane są elementy.
- * @param duplicated - wskaźnik na tablicę, z której dodawane będą elementy.
+ * Dopuszcza, że w @p duplicated istnieją duplikaty.
+ * @param[in,out] pnum - wskaźnik na strukturę, do której dodawane są elementy.
+ * @param[in] duplicated - wskaźnik na tablicę, z której dodawane będą elementy.
+ * @return Wartość @p true, jeśli operacja się powiodła. Wartość @p false, jeśli
+ * nie udało sie alokować pamięci.
  */
 static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
     tableSort(duplicated, strCompare);
@@ -257,7 +258,6 @@ static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
                 return false;
         }
     }
-    tableFree(duplicated);
 
     return true;
 }
@@ -290,6 +290,7 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
         return NULL;
     }
 
+    tableFree(duplicated);
     return pnum;
 }
 
