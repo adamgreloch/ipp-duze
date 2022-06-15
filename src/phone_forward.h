@@ -76,9 +76,8 @@ void phfwdRemove(PhoneForward *pf, char const *num);
  * funkcji @ref phnumDelete.
  * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
  * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
- *         udało się alokować pamięci, bądź gdy dowolny z parametrów ma wartość
- *         NULL.
+ * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy np.
+ *         nie udało się alokować pamięci, lub @p pf ma wartość NULL.
  */
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num);
 
@@ -92,9 +91,8 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num);
  * @p PhoneNumbers, która musi być zwolniona za pomocą funkcji @ref phnumDelete.
  * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
  * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
- *         udało się alokować pamięci, bądź gdy dowolny z parametrów ma wartość
- *         NULL.
+ * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy np.
+ *         nie udało się alokować pamięci, lub @p pf ma wartość NULL.
  */
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num);
 
@@ -108,9 +106,8 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num);
  * funkcji @ref phnumDelete.
  * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
  * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
- *         udało się alokować pamięci, bądź gdy dowolny z parametrów ma wartość
- *         NULL.
+ * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy np.
+ *         nie udało się alokować pamięci, lub @p pf ma wartość NULL.
  */
 PhoneNumbers *phfwdGetReverse(PhoneForward const *pf, char const *num);
 
