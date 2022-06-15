@@ -145,7 +145,8 @@ replacePrefix(char const *num, char const *fwdPrefix, size_t numLength,
         if (i < fwdPrefixLength) {
             new[i] = fwdPrefix[i];
             i++;
-        } else {
+        }
+        else {
             new[fwdPrefixLength + j] = num[j + toReplace];
             j++;
         }
@@ -263,7 +264,8 @@ static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
             if (!phnumAdd(pnum, tableGet(duplicated, i))) {
                 return false;
             }
-        } else free(elem);
+        }
+        else free(elem);
     }
     tableFree(duplicated);
     return true;
@@ -283,7 +285,8 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     if (!pnum || !duplicated || !tableAdd(duplicated, num) ||
         !phnumConsumeDistinct(pnum, duplicated)) {
         tableFreeAll(duplicated);
-        return phnumWithOne(pnum, num, length);
+        phnumDelete(pnum);
+        return NULL;
     }
 
     return pnum;
