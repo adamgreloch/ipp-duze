@@ -154,6 +154,13 @@ replacePrefix(char const *num, char const *fwdPrefix, size_t numLength,
     return new;
 }
 
+/**
+ * Alokuje strukturę @p PhoneNumbers i umieszcza w niej tylko ciąg @p num.
+ * Zakłada poprawność tego ciągu.
+ * @param pnum - wskaźnik na strukturę;
+ * @param num - poprawny ciąg znaków reprezentujący numer.
+ * @return Wskaźnik na strukturę przechowującą podany numer.
+ */
 static PhoneNumbers *phnumWithOne(PhoneNumbers *pnum, const char *num) {
     if (!pnum) pnum = phnumNew();
     if (!phnumAdd(pnum, num)) {
@@ -294,6 +301,11 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     return pnum;
 }
 
+/**
+ * Zwraca liczbę numerów w strukturze. Zakłada, że @p pnum nie jest NULL-em.
+ * @param pnum - wskaźnik na strukturę.
+ * @return Wartość liczbowa reprezentująca liczbę numerów.
+ */
 static size_t phnumGetAmount(PhoneNumbers *pnum) {
     return tableGetAmount(pnum->nums);
 }

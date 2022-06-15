@@ -97,7 +97,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num);
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num);
 
 /** @brief Wyznacza przeciwobraz funkcji phfwdGet() dla danego numer.
- * Wyznacza następujący ciąg numerów: numer @x należy do wyniku wywołania
+ * Wyznacza następujący ciąg numerów: numer @p x należy do wyniku wywołania
  * @ref phfwdGetReverse z numerem @p num wtedy i tylko wtedy, gdy
  * wynik wywołania @p phfwdGet z numerem @p x zawiera numer @p num.
  * Wynikowe numery są posortowane leksykograficznie i nie mogą się powtarzać.
