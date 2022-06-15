@@ -75,7 +75,8 @@ static void freeTrieNode(TrieNode *node) {
     if (node->hasList) {
         listDelete(node->value.list);
         node->value.list = NULL;
-    } else {
+    }
+    else {
         listNodeRemoveAndCut(node->bound);
         free(node->value.seq);
     }
@@ -96,7 +97,8 @@ void trieDelete(TrieNode *node) {
             if (curr == node) {
                 freeTrieNode(curr);
                 curr = NULL;
-            } else {
+            }
+            else {
                 toFree = curr;
                 curr = curr->parent;
                 /* Przekazany do zwolnienia curr był dzieckiem nowego curr.
@@ -105,13 +107,15 @@ void trieDelete(TrieNode *node) {
                 curr->count--;
                 freeTrieNode(toFree);
             }
-        } else {
+        }
+        else {
             /* W przeciwnym razie szukamy węzłów bez dzieci do usunięcia. */
             idx = curr->lastVisited + 1;
             if (curr->children[idx]) {
                 curr->lastVisited = idx;
                 curr = curr->children[idx];
-            } else
+            }
+            else
                 curr->lastVisited++;
         }
 }

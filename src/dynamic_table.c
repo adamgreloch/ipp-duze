@@ -87,21 +87,16 @@ bool tableAddPtr(Table *t, char *str) {
     return true;
 }
 
-void tableFree(Table *t) {
-    if (!t) return;
-    free(t->data);
-    free(t);
-}
-
 bool tableIsEmpty(Table *t) {
     return t->amount == 0;
 }
 
-void tableFreeAll(Table *t) {
+void tableFree(Table *t) {
     if (!t) return;
     for (size_t i = 0; i < t->amount; i++)
         free(t->data[i]);
-    tableFree(t);
+    free(t->data);
+    free(t);
 }
 
 char *tableGet(Table *t, size_t idx) {

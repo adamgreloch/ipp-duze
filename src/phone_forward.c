@@ -112,9 +112,9 @@ static PhoneNumbers *phnumNew() {
  * @return Wartość @p true, jeśli operacja się powiodła, wartość @p false w
  * przeciwnym wypadku.
  */
-static bool phnumAdd(PhoneNumbers *pnum, char *num) {
+static bool phnumAdd(PhoneNumbers *pnum, const char *num) {
     if (!pnum) return false;
-    return tableAddPtr(pnum->nums, num);
+    return tableAdd(pnum->nums, num);
 }
 
 /**
@@ -154,12 +154,9 @@ replacePrefix(char const *num, char const *fwdPrefix, size_t numLength,
     return new;
 }
 
-static PhoneNumbers *phnumWithOne(PhoneNumbers *pnum, const char *num, size_t
-length) {
+static PhoneNumbers *phnumWithOne(PhoneNumbers *pnum, const char *num) {
     if (!pnum) pnum = phnumNew();
-    char *toAdd = malloc((length + 1) * sizeof(char));
-    if (!toAdd || !strcpy(toAdd, num) || !phnumAdd(pnum, toAdd)) {
-        free(toAdd);
+    if (!phnumAdd(pnum, num)) {
         phnumDelete(pnum);
         return NULL;
     }
@@ -177,24 +174,25 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
 
     size_t toReplace;
     TrieNode *found = trieFindSeq(pf->fwds, num, &toReplace);
-    if (!found) return phnumWithOne(pnum, num, length);
+    if (!found) return phnumWithOne(pnum, num);
 
     char *replaced = replacePrefix(num, trieNodeGetSeq(found), length,
                                    toReplace);
-    if (!replaced) {
+
+    if (!replaced || !phnumAdd(pnum, replaced)) {
+        free(replaced);
         phnumDelete(pnum);
         return NULL;
     }
 
-    phnumAdd(pnum, replaced);
-
+    free(replaced);
     return pnum;
 }
 
 /** @brief Zbiera wskaźniki do nowych prefiksów ze wszystkich list na ścieżce z
  * wierzchołka @p from do korzenia drzewa w którym się znajduje.
  * Alokuje strukturę @p Table, która musi być zwolniona za pomocą funkcji @ref
- * tableFreeAll. Umieszcza w @p Table numery powstałe z
+ * tableFree. Umieszcza w @p Table numery powstałe z
  * @p num z zastąpionymi odpowiednimi prefiksami.
  * @param from - wskaźnik na początek ścieżki.
  * @param num - wskaźnik na ciąg znaków, którego prefiksy będą zastępowane nowymi.
@@ -223,7 +221,7 @@ findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
                 if (!tableAddPtr(revs, replaced)) {
                     free(arr);
                     free(replaced);
-                    tableFreeAll(revs);
+                    tableFree(revs);
                     return NULL;
                 }
             }
@@ -235,7 +233,7 @@ findAllRevs(TrieNode *from, char const *num, size_t length, size_t depth) {
     if (tableIsEmpty(revs)) {
         /* Tablica @p revs jest pusta, co jest sprzeczne z założeniem. Musiał
         więc nastąpić problem z alokacją pamięci w listToArray() */
-        tableFreeAll(revs);
+        tableFree(revs);
         return NULL;
     }
 
@@ -261,11 +259,9 @@ static bool phnumConsumeDistinct(PhoneNumbers *pnum, Table *duplicated) {
         elem = tableGet(duplicated, i);
         if (!prev || strCompare(&elem, &prev) != 0) {
             prev = elem;
-            if (!phnumAdd(pnum, tableGet(duplicated, i))) {
+            if (!phnumAdd(pnum, tableGet(duplicated, i)))
                 return false;
-            }
         }
-        else free(elem);
     }
     tableFree(duplicated);
     return true;
@@ -277,14 +273,14 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     if (!(length = isCorrect(num))) return phnumNew();
 
     TrieNode *longest = trieFindSeq(pf->revs, num, &toReplace);
-    if (!longest) return phnumWithOne(NULL, num, length);
+    if (!longest) return phnumWithOne(NULL, num);
 
     Table *duplicated = findAllRevs(longest, num, length, toReplace);
 
     PhoneNumbers *pnum = phnumNew();
     if (!pnum || !duplicated || !tableAdd(duplicated, num) ||
         !phnumConsumeDistinct(pnum, duplicated)) {
-        tableFreeAll(duplicated);
+        tableFree(duplicated);
         phnumDelete(pnum);
         return NULL;
     }
@@ -294,7 +290,7 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
 
 void phnumDelete(PhoneNumbers *pnum) {
     if (!pnum) return;
-    tableFreeAll(pnum->nums);
+    tableFree(pnum->nums);
     free(pnum);
 }
 

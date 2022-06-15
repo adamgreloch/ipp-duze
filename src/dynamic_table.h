@@ -53,19 +53,12 @@ bool tableAddPtr(Table *t, char *str);
  */
 char *tableGet(Table *t, size_t idx);
 
-/** @brief Usuwa tablicę bez zwalniania ciągów znaków przez nią wskazywanych.
+/** @brief Usuwa tablicę.
  * Usuwa tablicę wskazywaną przez @p t. Nic nie robi, jeśli wskaźnik ten ma
  * wartość NULL.
  * @param[in,out] t – wskaźnik na usuwaną tablicę.
  */
 void tableFree(Table *t);
-
-/** @brief Usuwa tablicę razem z ciągami znaków przez nią wskazywanych.
- * Usuwa tablicę wskazywaną przez @p t. Nic nie robi, jeśli wskaźnik ten ma
- * wartość NULL.
- * @param[in,out] t – wskaźnik na usuwaną tablicę.
- */
-void tableFreeAll(Table *t);
 
 /**
  * @brief Zwraca liczbę elementów w tablicy @p t.
